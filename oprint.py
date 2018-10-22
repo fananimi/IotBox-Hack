@@ -1,6 +1,7 @@
 import sys
 import time
 import json
+import usb
 
 from bottle import response, request, route, run, hook
 
@@ -9,6 +10,55 @@ from PyQt4.QtGui import QApplication, QMainWindow
 
 
 class PrintingThread(QThread):
+
+    def connected_usb_devices(self):
+        connected = []
+
+        # printers can either define bDeviceClass=7, or they can define one of
+        # their interfaces with bInterfaceClass=7. This class checks for both.
+        class FindUsbClass(object):
+            def __init__(self, usb_class):
+                self._class = usb_class
+            def __call__(self, device):
+                # first, let's check the device
+                if device.bDeviceClass == self._class:
+                    return True
+                # transverse all devices and look through their interfaces to
+                # find a matching class
+                for cfg in device:
+                    intf = usb.util.find_descriptor(cfg, bInterfaceClass=self._class)
+
+                    if intf is not None:
+                        return True
+
+                return False
+
+        printers = usb.core.find(find_all=True, custom_match=FindUsbClass(7))
+
+        # if no printers are found after this step we will take the
+        # first epson or star device we can find.
+        # epson
+        if not printers:
+            printers = usb.core.find(find_all=True, idVendor=0x04b8)
+        # star
+        if not printers:
+            printers = usb.core.find(find_all=True, idVendor=0x0519)
+
+        for printer in printers:
+            try:
+                manufacture  = usb.util.get_string(printer, printer.iManufacturer)
+                product = usb.util.get_string(printer, printer.iProduct)
+                description = manufacture + " " + product
+            except Exception as e:
+                # _logger.error("Can not get printer description: %s" % e)
+                description = 'Unknown printer'
+            connected.append({
+                'vendor': printer.idVendor,
+                'product': printer.idProduct,
+                'name': description
+            })
+
+        return connected
 
     def run(self):
         while True:
