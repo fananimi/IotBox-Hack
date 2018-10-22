@@ -28,48 +28,56 @@ class PrintingThread(QThread):
     def search_printer(self, vendor_id, product_id):
         return self.db.search((self.device.vendor == vendor_id) & (self.device.product == product_id))
 
-    def insert_printer(self, vendor_id, product_id, name, selected=False):
+    def insert_printer(self, vendor_id, product_id, name, connected=False):
         data = {
             'vendor': vendor_id,
             'product': product_id,
             'name': name,
-            'selected': selected
+            'connected': connected
         }
         return self.db.insert(data)
 
-    def get_or_create_printer(self, vendor_id, product_id, name, selected=False):
-        if not self.search_printer(vendor_id, product_id):
-            self.insert_printer(vendor_id, product_id, name, selected)
+    def update_printer(self, vendor_id, product_id, name, connected):
+        self.db.update(
+            {'name': name, 'connected': connected},
+            (self.device.vendor == vendor_id) & (self.device.product == product_id)
+        )
         return self.search_printer(vendor_id, product_id)[0]
 
-    def get_selected_printer(self):
-        selected_printer = None
-        usb = None
-        try:
-            selected_printer = self.db.search(self.device.selected == True)[0]
-            usb = Usb(selected_printer['vendor'], selected_printer['product'])
-        except IndexError:
-            pass
-        except AttributeError:
-            pass
-        finally:
-            if selected_printer and not usb:
-                self.remove_printer(selected_printer['vendor'], selected_printer['product'])
-            else:
+    def get_or_create_printer(self, vendor_id, product_id, name, connected=False):
+        if not self.search_printer(vendor_id, product_id):
+            # create new record
+            self.insert_printer(vendor_id, product_id, name, connected)
+
+        record = self.search_printer(vendor_id, product_id)[0]
+        if not all([record['name'] == name, record['connected'] == connected]):
+            # update record
+            record = self.update_printer(vendor_id, product_id, name, connected)
+
+        return record
+
+    def check_listed_printers(self):
+        for record in self.db.all():
+            connected = False
+            try:
+                usb = Usb(record['vendor'], record['product'])
+                connected = True
                 del usb
-            return selected_printer
+            except AttributeError:
+                connected = False
+            finally:
+                if record['connected'] != connected:
+                    # update record
+                    self.update_printer(record['vendor'], record['product'], record['name'], record['connected'])
 
     def get_connected_usb_devices(self):
-        # checking selected printer
-        selected_printer = self.get_selected_printer()
-
-        connected = []
 
         # printers can either define bDeviceClass=7, or they can define one of
         # their interfaces with bInterfaceClass=7. This class checks for both.
         class FindUsbClass(object):
             def __init__(self, usb_class):
                 self._class = usb_class
+
             def __call__(self, device):
                 # first, let's check the device
                 if device.bDeviceClass == self._class:
@@ -84,8 +92,14 @@ class PrintingThread(QThread):
 
                 return False
 
+        # check listed printers
+        self.check_listed_printers()
+
+        # find connected printer
+        connected = []
         printers = usb.core.find(find_all=True, custom_match=FindUsbClass(7))
 
+        '''
         # if no printers are found after this step we will take the
         # first epson or star device we can find.
         # epson
@@ -94,18 +108,20 @@ class PrintingThread(QThread):
         # star
         if not printers:
             printers = usb.core.find(find_all=True, idVendor=0x0519)
+        '''
 
         for printer in printers:
+            vendor, product, name = None
             try:
-                manufacture  = usb.util.get_string(printer, printer.iManufacturer)
+                vendor  = usb.util.get_string(printer, printer.iManufacturer)
                 product = usb.util.get_string(printer, printer.iProduct)
-                name = manufacture + " " + product
+                name    = vendor + " " + product
             except Exception as e:
-                # _logger.error("Can not get printer description: %s" % e)
                 name = 'Unknown printer'
 
-            data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name, not selected_printer)
-            connected.append(data)
+            if all([vendor, product, name]):
+                data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name, True)
+                connected.append(data)
 
         return connected
 
@@ -113,7 +129,7 @@ class PrintingThread(QThread):
         self.purge_db()
         while True:
             self.get_connected_usb_devices()
-            time.sleep(1)
+            time.sleep(5)
 
 
 class WebThread(QThread):
