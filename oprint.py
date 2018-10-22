@@ -4,6 +4,7 @@ import json
 import usb
 
 from bottle import response, request, route, run, hook
+from tinydb import TinyDB, Query
 
 from PyQt4.QtCore import QThread, SIGNAL
 from PyQt4.QtGui import QApplication, QMainWindow
@@ -11,7 +12,32 @@ from PyQt4.QtGui import QApplication, QMainWindow
 
 class PrintingThread(QThread):
 
-    def connected_usb_devices(self):
+    def __init__(self, parent=None):
+        super(PrintingThread, self).__init__(parent)
+
+        self.db = TinyDB('printer.json')
+        self.device = Query()
+
+    def purge_db(self):
+        self.db.purge()
+
+    def search_printer(self, vendor_id, product_id):
+        return self.db.search((self.device.vendor == vendor_id) & (self.device.product == product_id))
+
+    def insert_printer(self, vendor_id, product_id, name):
+        data = {
+            'vendor': vendor_id,
+            'product': product_id,
+            'name': name
+        }
+        return self.db.insert(data)
+
+    def get_or_create_printer(self, vendor_id, product_id, name):
+        if not self.search_printer(vendor_id, product_id):
+            self.insert_printer(vendor_id, product_id, name)
+        return self.search_printer(vendor_id, product_id)[0]
+
+    def get_connected_usb_devices(self):
         connected = []
 
         # printers can either define bDeviceClass=7, or they can define one of
@@ -48,20 +74,20 @@ class PrintingThread(QThread):
             try:
                 manufacture  = usb.util.get_string(printer, printer.iManufacturer)
                 product = usb.util.get_string(printer, printer.iProduct)
-                description = manufacture + " " + product
+                name = manufacture + " " + product
             except Exception as e:
                 # _logger.error("Can not get printer description: %s" % e)
-                description = 'Unknown printer'
-            connected.append({
-                'vendor': printer.idVendor,
-                'product': printer.idProduct,
-                'name': description
-            })
+                name = 'Unknown printer'
+
+            data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name)
+            connected.append(data)
 
         return connected
 
     def run(self):
+        self.purge_db()
         while True:
+            self.get_connected_usb_devices()
             time.sleep(1)
 
 
