@@ -94,6 +94,22 @@ class Printer:
         except KeyError:
             pass
 
+    def get_default_printer(self):
+        try:
+            return self.db.search(Query()[Printer.SELECTED] == True)[0]
+        except IndexError:
+            return {}
+
+    def set_default_printer(self, vendor_id, product_id):
+        self.db.update(
+            {Printer.SELECTED: False},
+            Query()[Printer.SELECTED] == True
+        )
+        self.db.update(
+            {Printer.SELECTED: True},
+            (Query()[Printer.VENDOR] == vendor_id) & (Query()[Printer.PRODUCT] == product_id)
+        )
+
 
 class PrintingThread(QThread):
 
@@ -168,6 +184,10 @@ class PrintingThread(QThread):
                 data = self.printer.get_or_create_device(printer.idVendor, printer.idProduct, name=name, connected=True)
                 connected.append(data)
 
+        if not self.printer.get_default_printer():
+            for printer in self.printer.all():
+                self.printer.set_default_printer(printer[Printer.VENDOR], printer[Printer.PRODUCT])
+                break
         return connected
 
     def run(self):
