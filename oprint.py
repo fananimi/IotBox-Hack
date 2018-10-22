@@ -11,64 +11,89 @@ from PyQt4.QtCore import QThread, SIGNAL
 from PyQt4.QtGui import QApplication, QMainWindow
 
 
+class Printer:
+
+    VENDOR      = 'vendor'
+    PRODUCT     = 'product'
+    NAME        = 'name'
+    CONNECTED   = 'connected'
+    SELECTED    = 'selected'
+
+    @staticmethod
+    def keys():
+        return [Printer.VENDOR, Printer.PRODUCT, Printer.NAME, Printer.CONNECTED, Printer.SELECTED]
+
+
 class PrintingThread(QThread):
 
     def __init__(self, parent=None):
         super(PrintingThread, self).__init__(parent)
 
         self.db = TinyDB('printer.json')
-        self.device = Query()
+
+    def bundle_data(self, vendor_id, product_id, **kwargs):
+        data = {Printer.VENDOR: vendor_id, Printer.PRODUCT: product_id}
+        for key, value in kwargs.items():
+            if key in Printer.keys():
+                data[key] = value
+        return data
 
     def purge_db(self):
         self.db.purge()
 
-    def remove_printer(self, vendor_id, product_id):
-        return self.db.remove((self.device.vendor == vendor_id) & (self.device.product == product_id))
+    def remove_device(self, vendor_id, product_id):
+        return self.db.remove((Query()[Printer.VENDOR] == vendor_id) & (Query()[Printer.PRODUCT] == product_id))
 
-    def search_printer(self, vendor_id, product_id):
-        return self.db.search((self.device.vendor == vendor_id) & (self.device.product == product_id))
+    def find_device(self, vendor_id, product_id):
+        try:
+            return self.db.search((Query()[Printer.VENDOR] == vendor_id) & (Query()[Printer.PRODUCT] == product_id))[0]
+        except IndexError:
+            return {}
 
-    def insert_printer(self, vendor_id, product_id, name, connected=False):
-        data = {
-            'vendor': vendor_id,
-            'product': product_id,
-            'name': name,
-            'connected': connected
-        }
-        return self.db.insert(data)
+    def add_device(self, vendor_id, product_id, **kwargs):
+        data = self.bundle_data(vendor_id, product_id, **kwargs)
+        self.db.insert(data)
+        return self.find_device(vendor_id, product_id)
 
-    def update_printer(self, vendor_id, product_id, name, connected):
-        self.db.update(
-            {'name': name, 'connected': connected},
-            (self.device.vendor == vendor_id) & (self.device.product == product_id)
-        )
-        return self.search_printer(vendor_id, product_id)[0]
+    def update_device(self, vendor_id, product_id, **kwargs):
+        data = self.bundle_data(vendor_id, product_id, **kwargs)
+        # remove unique data for querying
+        data.pop(Printer.VENDOR)
+        data.pop(Printer.PRODUCT)
 
-    def get_or_create_printer(self, vendor_id, product_id, name, connected=False):
-        if not self.search_printer(vendor_id, product_id):
+        self.db.update(data, (Query()[Printer.VENDOR] == vendor_id) & (Query()[Printer.PRODUCT] == product_id))
+        return self.find_device(vendor_id, product_id)
+
+    def get_or_create_device(self, vendor_id, product_id, **kwargs):
+        record = self.find_device(vendor_id, product_id)
+        if not record:
             # create new record
-            self.insert_printer(vendor_id, product_id, name, connected)
+            record = self.add_device(vendor_id, product_id, **kwargs)
 
-        record = self.search_printer(vendor_id, product_id)[0]
-        if not all([record['name'] == name, record['connected'] == connected]):
+        data = self.bundle_data(vendor_id, product_id, **kwargs)
+        validities = []
+        for key in Printer.keys():
+            if record.has_key(key) and data.has_key(key):
+                validities.append(record[key] == data[key])
+        if not all(validities):
             # update record
-            record = self.update_printer(vendor_id, product_id, name, connected)
+            record = self.update_device(vendor_id, product_id, **kwargs)
 
         return record
 
-    def check_listed_printers(self):
+    def check_listed_device(self):
         for record in self.db.all():
             connected = False
             try:
-                usb = Usb(record['vendor'], record['product'])
+                usb = Usb(record[Printer.VENDOR], record[Printer.PRODUCT])
                 connected = True
                 del usb
             except AttributeError:
-                connected = False
+                pass
             finally:
-                if record['connected'] != connected:
+                if record[Printer.CONNECTED] != connected:
                     # update record
-                    self.update_printer(record['vendor'], record['product'], record['name'], record['connected'])
+                    self.update_device(record[Printer.VENDOR], record[Printer.PRODUCT], connected=connected)
 
     def get_connected_usb_devices(self):
 
@@ -93,7 +118,7 @@ class PrintingThread(QThread):
                 return False
 
         # check listed printers
-        self.check_listed_printers()
+        self.check_listed_device()
 
         # find connected printer
         connected = []
@@ -111,7 +136,7 @@ class PrintingThread(QThread):
         '''
 
         for printer in printers:
-            vendor, product, name = None
+            vendor = product = name = None
             try:
                 vendor  = usb.util.get_string(printer, printer.iManufacturer)
                 product = usb.util.get_string(printer, printer.iProduct)
@@ -120,7 +145,7 @@ class PrintingThread(QThread):
                 name = 'Unknown printer'
 
             if all([vendor, product, name]):
-                data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name, True)
+                data = self.get_or_create_device(printer.idVendor, printer.idProduct, name=name, connected=True)
                 connected.append(data)
 
         return connected
