@@ -22,10 +22,14 @@ class Printer:
     def __init__(self):
         self.db = TinyDB('printer.json')
 
+    @staticmethod
+    def keys():
+        return [Printer.VENDOR, Printer.PRODUCT, Printer.NAME, Printer.CONNECTED, Printer.SELECTED]
+
     def bundle_data(self, vendor_id, product_id, **kwargs):
         data = {Printer.VENDOR: vendor_id, Printer.PRODUCT: product_id}
         for key, value in kwargs.items():
-            if key in Printer.keys():
+            if not data.has_key(key):
                 data[key] = value
         return data
 
@@ -46,6 +50,9 @@ class Printer:
 
     def add_device(self, vendor_id, product_id, **kwargs):
         data = self.bundle_data(vendor_id, product_id, **kwargs)
+        for key in Printer.keys():
+            if key not in data.keys():
+                data[key] = self.get_default(key)
         self.db.insert(data)
         return self.find_device(vendor_id, product_id)
 
@@ -75,9 +82,17 @@ class Printer:
 
         return record
 
-    @staticmethod
-    def keys():
-        return [Printer.VENDOR, Printer.PRODUCT, Printer.NAME, Printer.CONNECTED, Printer.SELECTED]
+    def get_default(self, key):
+        default_value = {
+            Printer.NAME: "Unknown printer",
+            Printer.CONNECTED: True,
+            Printer.SELECTED: False
+        }
+        try:
+            value = default_value[key]
+            return value
+        except KeyError:
+            pass
 
 
 class PrintingThread(QThread):
