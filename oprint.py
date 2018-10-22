@@ -3,6 +3,7 @@ import time
 import json
 import usb
 
+from escpos.printer import Usb
 from bottle import response, request, route, run, hook
 from tinydb import TinyDB, Query
 
@@ -21,23 +22,47 @@ class PrintingThread(QThread):
     def purge_db(self):
         self.db.purge()
 
+    def remove_printer(self, vendor_id, product_id):
+        return self.db.remove((self.device.vendor == vendor_id) & (self.device.product == product_id))
+
     def search_printer(self, vendor_id, product_id):
         return self.db.search((self.device.vendor == vendor_id) & (self.device.product == product_id))
 
-    def insert_printer(self, vendor_id, product_id, name):
+    def insert_printer(self, vendor_id, product_id, name, selected=False):
         data = {
             'vendor': vendor_id,
             'product': product_id,
-            'name': name
+            'name': name,
+            'selected': selected
         }
         return self.db.insert(data)
 
-    def get_or_create_printer(self, vendor_id, product_id, name):
+    def get_or_create_printer(self, vendor_id, product_id, name, selected=False):
         if not self.search_printer(vendor_id, product_id):
-            self.insert_printer(vendor_id, product_id, name)
+            self.insert_printer(vendor_id, product_id, name, selected)
         return self.search_printer(vendor_id, product_id)[0]
 
+    def get_selected_printer(self):
+        selected_printer = None
+        usb = None
+        try:
+            selected_printer = self.db.search(self.device.selected == True)[0]
+            usb = Usb(selected_printer['vendor'], selected_printer['product'])
+        except IndexError:
+            pass
+        except AttributeError:
+            pass
+        finally:
+            if selected_printer and not usb:
+                self.remove_printer(selected_printer['vendor'], selected_printer['product'])
+            else:
+                del usb
+            return selected_printer
+
     def get_connected_usb_devices(self):
+        # checking selected printer
+        selected_printer = self.get_selected_printer()
+
         connected = []
 
         # printers can either define bDeviceClass=7, or they can define one of
@@ -79,7 +104,7 @@ class PrintingThread(QThread):
                 # _logger.error("Can not get printer description: %s" % e)
                 name = 'Unknown printer'
 
-            data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name)
+            data = self.get_or_create_printer(printer.idVendor, printer.idProduct, name, not selected_printer)
             connected.append(data)
 
         return connected
