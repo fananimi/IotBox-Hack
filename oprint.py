@@ -52,7 +52,7 @@ class Printer:
         data = self.bundle_data(vendor_id, product_id, **kwargs)
         for key in Printer.keys():
             if key not in data.keys():
-                data[key] = self.get_default(key)
+                data[key] = self.get_default_value(key)
         self.db.insert(data)
         return self.find_device(vendor_id, product_id)
 
@@ -82,7 +82,7 @@ class Printer:
 
         return record
 
-    def get_default(self, key):
+    def get_default_value(self, key):
         default_value = {
             Printer.NAME: "Unknown printer",
             Printer.CONNECTED: True,
