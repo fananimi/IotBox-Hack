@@ -19,16 +19,7 @@ class Printer:
     CONNECTED   = 'connected'
     SELECTED    = 'selected'
 
-    @staticmethod
-    def keys():
-        return [Printer.VENDOR, Printer.PRODUCT, Printer.NAME, Printer.CONNECTED, Printer.SELECTED]
-
-
-class PrintingThread(QThread):
-
-    def __init__(self, parent=None):
-        super(PrintingThread, self).__init__(parent)
-
+    def __init__(self):
         self.db = TinyDB('printer.json')
 
     def bundle_data(self, vendor_id, product_id, **kwargs):
@@ -37,6 +28,9 @@ class PrintingThread(QThread):
             if key in Printer.keys():
                 data[key] = value
         return data
+
+    def all(self):
+        return self.db.all()
 
     def purge_db(self):
         self.db.purge()
@@ -81,8 +75,19 @@ class PrintingThread(QThread):
 
         return record
 
+    @staticmethod
+    def keys():
+        return [Printer.VENDOR, Printer.PRODUCT, Printer.NAME, Printer.CONNECTED, Printer.SELECTED]
+
+
+class PrintingThread(QThread):
+
+    def __init__(self, parent=None):
+        super(PrintingThread, self).__init__(parent)
+        self.printer = Printer()
+
     def check_listed_device(self):
-        for record in self.db.all():
+        for record in self.printer.all():
             connected = False
             try:
                 usb = Usb(record[Printer.VENDOR], record[Printer.PRODUCT])
@@ -93,7 +98,7 @@ class PrintingThread(QThread):
             finally:
                 if record[Printer.CONNECTED] != connected:
                     # update record
-                    self.update_device(record[Printer.VENDOR], record[Printer.PRODUCT], connected=connected)
+                    self.printer.update_device(record[Printer.VENDOR], record[Printer.PRODUCT], connected=connected)
 
     def get_connected_usb_devices(self):
 
@@ -145,13 +150,13 @@ class PrintingThread(QThread):
                 name = 'Unknown printer'
 
             if all([vendor, product, name]):
-                data = self.get_or_create_device(printer.idVendor, printer.idProduct, name=name, connected=True)
+                data = self.printer.get_or_create_device(printer.idVendor, printer.idProduct, name=name, connected=True)
                 connected.append(data)
 
         return connected
 
     def run(self):
-        self.purge_db()
+        self.printer.purge_db()
         while True:
             self.get_connected_usb_devices()
             time.sleep(5)
