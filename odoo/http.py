@@ -17,7 +17,7 @@ def route(rule, **options):
     """
 
     def decorator(f):
-        method = options.get('method') or ['GET', 'POST', 'OPTIONS']
+        method = options.get('method') or ['GET', 'OPTIONS']
         if not isinstance(method, list):
             method = [method]
         method = [m.upper() for m in method]
