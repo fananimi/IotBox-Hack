@@ -3,6 +3,7 @@
 /scripts/*
 !.gitignore
 !*.sample
+config.ini
 tmp/
 
 # IntelliJ project files
