@@ -21,11 +21,3 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 hw_proxy.drivers['escpos'] = driver
-
-
-class HwEscpos(http.Controller):
-
-    @http.route('/hw_proxy/hello')
-    def hello(self):
-        driver.hai()
-        return "Hello !"

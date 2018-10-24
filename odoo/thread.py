@@ -1,5 +1,5 @@
 from bottle import Bottle
-from odoo.http import EnableCors, Controller
+from odoo.http import EnableCorsPlugin, JSONRPCPlugin, Controller
 from PyQt4.QtCore import QThread
 
 
@@ -20,5 +20,6 @@ class WebThread(Thread):
         for controller in controllers:
             controller.register(app)
 
-        app.install(EnableCors())
+        app.install(EnableCorsPlugin())
+        app.install(JSONRPCPlugin())
         app.run(host='localhost', port=8080, debug=False)

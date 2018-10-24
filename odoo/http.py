@@ -2,12 +2,24 @@ import re
 import sys
 import inspect
 import logging
-from bottle import request, response
+from bottle import request, response, tob, template, HTTPResponse, HTTPError, ERROR_PAGE_TEMPLATE
 
+try: from simplejson import dumps as json_dumps
+except ImportError: # pragma: no cover
+    try: from json import dumps as json_dumps
+    except ImportError:
+        try: from django.utils.simplejson import dumps as json_dumps
+        except ImportError:
+            def json_dumps(data):
+                raise ImportError("JSON support requires Python 2.6 or simplejson.")
 
-logger = logging.getLogger(__name__)
 
 _py2 = sys.version_info[0] == 2
+_logger = logging.getLogger(__name__)
+
+
+# Workaround for the missing "as" keyword in py3k.
+def _e(): return sys.exc_info()[1]
 
 
 def route(rule, **options):
@@ -17,12 +29,13 @@ def route(rule, **options):
     """
 
     def decorator(f):
-        method = options.get('method') or ['GET', 'OPTIONS']
+        method = options.get('method') or ['GET', 'POST', 'OPTIONS']
         if not isinstance(method, list):
             method = [method]
         method = [m.upper() for m in method]
         if 'OPTIONS' not in method:
             method.append('OPTIONS')
+        options['method'] = method
 
         # Put the rule cache on the method itself instead of globally
         if not hasattr(f, '_rule_cache') or f._rule_cache is None:
@@ -32,27 +45,30 @@ def route(rule, **options):
         else:
             f._rule_cache[f.__name__].append((rule, options))
 
-        # Put the rule allowed_method on the method itself instead of globally
-        if not hasattr(f, 'allowed_method') or f.allowed_method is None:
-            f.allowed_method = method
-            options['method'] = method
+        # Put the _method on the method itself instead of globally
+        if not hasattr(f, '_method') or f._method is None:
+            f._method = method
+
+        # Put the _route on the method itself instead of globally
+        if not hasattr(f, '_route') or f._route is None:
+            f._route = options
 
         return f
 
     return decorator
 
 
-class EnableCors(object):
+class EnableCorsPlugin(object):
     name = 'enable_cors'
     api = 2
 
-    def apply(self, fn, context):
+    def apply(self, callback, route):
 
-        def enable_cors(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             # set CORS headers
-            allowed_method = [method for method in fn.allowed_method if method != 'OPTIONS']
+            allowed_methods = [m for m in callback._method if m != 'OPTIONS']
             response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = ", ".join(allowed_method)
+            response.headers['Access-Control-Allow-Methods'] = ", ".join(allowed_methods)
 
             if request.method == 'OPTIONS':
                 response.headers['Access-Control-Max-Age'] = 86400
@@ -60,9 +76,86 @@ class EnableCors(object):
                     'Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, X-Debug-Mode'
             else:
                 # actual request; reply with the actual response
-                return fn(*args, **kwargs)
+                return callback(*args, **kwargs)
 
-        return enable_cors
+        return wrapper
+
+
+class JSONRPCPlugin(object):
+    name = 'json_rpc'
+    api  = 2
+
+    def __init__(self, json_dumps=json_dumps):
+        self.json_dumps = json_dumps
+        self.jsonresponse = {
+            "jsonrpc": "2.0",
+            "id": None,
+            "result": None
+        }
+
+    def make_error(self, status_code, message):
+        response.status = status_code
+        PAGE_ERROR_TEMPLATE = '''
+        <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+        <html>
+            <head>
+                <title>Error: %s</title>
+                <style type="text/css">
+                  html {background-color: #eee; font-family: sans;}
+                  body {background-color: #fff; border: 1px solid #ddd;
+                        padding: 15px; margin: 15px;}
+                  pre {background-color: #eee; border: 1px solid #ddd; padding: 5px;}
+                </style>
+            </head>
+            <body>
+                <h1>Error: %s</h1>
+                <p>Sorry, the requested URL <tt>%s</tt>
+                   caused an error:</p>
+                <pre>%s</pre>
+            </body>
+        </html>
+        ''' % (status_code, status_code, request.url, message)
+        return PAGE_ERROR_TEMPLATE
+
+    def apply(self, callback, route):
+        dumps = self.json_dumps
+        if not dumps: return callback
+
+        def wrapper(*args, **kwargs):
+            try:
+                rv = callback(*args, **kwargs)
+            except HTTPError:
+                rv = _e()
+
+            route = callback._route
+            if route.get('type') == 'json':
+                # build json
+                try:
+                    if request.json is None:
+                        raise ValueError("Function declared as capable of handling request of type 'json' but called with a request of type 'http'")
+                    id = request.json.get('id')
+                    self.jsonresponse['id'] = id
+                except ValueError as message:
+                    return self.make_error(400, message)
+
+                self.jsonresponse['result'] = rv
+                rv = self.jsonresponse
+
+            if isinstance(rv, bool):
+                rv = str(rv)
+
+            if isinstance(rv, dict):
+                #Attempt to serialize, raises exception on failure
+                rv = dumps(rv)
+                #Set content type only if serialization succesful
+                response.content_type = 'application/json'
+            elif isinstance(rv, HTTPResponse) and isinstance(rv.body, dict):
+                rv.body = dumps(rv.body)
+                rv.content_type = 'application/json'
+
+            return rv
+
+        return wrapper
 
 
 class Controller(object):
@@ -191,7 +284,7 @@ class Controller(object):
         all_members = inspect.getmembers(cls, predicate=predicate)
         return [member for member in all_members
                 if not member[0] in base_members
-                and not not hasattr(member[1], 'allowed_method')
+                and not not hasattr(member[1], '_method')
                 and ((hasattr(member[1], "__self__")
                       and not member[1].__self__ in cls.__class__.__mro__) if _py2 else True)
                 and not member[0].startswith("_")]
