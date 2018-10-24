@@ -87,11 +87,6 @@ class JSONRPCPlugin(object):
 
     def __init__(self, json_dumps=json_dumps):
         self.json_dumps = json_dumps
-        self.jsonresponse = {
-            "jsonrpc": "2.0",
-            "id": None,
-            "result": None
-        }
 
     def make_error(self, status_code, message):
         response.status = status_code
@@ -122,24 +117,38 @@ class JSONRPCPlugin(object):
         if not dumps: return callback
 
         def wrapper(*args, **kwargs):
+            json_request = None
+            json_response = {
+                "jsonrpc": "2.0",
+                "id": None,
+                "result": None
+            }
+
             try:
+                json_request = request.json
+                if isinstance(json_request, dict) and json_request.has_key('params'):
+                    kwargs.update(json_request['params'])
                 rv = callback(*args, **kwargs)
             except HTTPError:
                 rv = _e()
+            except TypeError as message:
+                return self.make_error(400, message)
+            except ValueError as message:
+                return self.make_error(400, message)
 
             route = callback._route
             if route.get('type') == 'json':
                 # build json
                 try:
-                    if request.json is None:
+                    if not isinstance(json_request, dict):
                         raise ValueError("Function declared as capable of handling request of type 'json' but called with a request of type 'http'")
-                    id = request.json.get('id')
-                    self.jsonresponse['id'] = id
+                    elif json_request.has_key('id'):
+                        json_response['id'] = json_request['id']
                 except ValueError as message:
                     return self.make_error(400, message)
-
-                self.jsonresponse['result'] = rv
-                rv = self.jsonresponse
+                finally:
+                    json_response['result'] = rv
+                    rv = json_response
 
             if isinstance(rv, bool):
                 rv = str(rv)
