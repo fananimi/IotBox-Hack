@@ -46,8 +46,9 @@ class EnableCors(object):
 
         def enable_cors(*args, **kwargs):
             # set CORS headers
+            allowed_method = [method for method in fn.allowed_method if method != 'OPTIONS']
             response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = ", ".join(fn.allowed_method)
+            response.headers['Access-Control-Allow-Methods'] = ", ".join(allowed_method)
 
             if request.method == 'OPTIONS':
                 response.headers['Access-Control-Max-Age'] = 86400
