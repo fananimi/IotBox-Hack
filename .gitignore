@@ -1,7 +1,9 @@
+# General
 /config/*
 /scripts/*
 !.gitignore
 !*.sample
+tmp/
 
 # IntelliJ project files
 .idea
@@ -155,4 +157,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
