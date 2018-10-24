@@ -189,6 +189,7 @@ class Controller(object):
         all_members = inspect.getmembers(cls, predicate=predicate)
         return [member for member in all_members
                 if not member[0] in base_members
+                and not not hasattr(member[1], 'allowed_method')
                 and ((hasattr(member[1], "__self__")
                       and not member[1].__self__ in cls.__class__.__mro__) if _py2 else True)
                 and not member[0].startswith("_")]
