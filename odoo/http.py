@@ -1,8 +1,11 @@
 import re
 import sys
 import inspect
+import logging
 from bottle import request, response
 
+
+logger = logging.getLogger(__name__)
 
 _py2 = sys.version_info[0] == 2
 
@@ -93,7 +96,6 @@ class Controller(object):
 
         # Iterate through class members to register Endpoints
         for func_name, func in routes:
-            # print "*"*50
 
             method_args = inspect.getargspec(func)[0]
             # Get
@@ -143,7 +145,7 @@ class Controller(object):
                     cls._app.route(callback=callable_method, path=rule,
                                    method=method, name=endpoint, **options)
 
-            print ("%s : %s, Endpoint: %s" % (method, rule, endpoint))
+            logging.debug("%s : %s, Endpoint: %s" % (method, rule, endpoint))
 
     @classmethod
     def _build_route_rule(cls, func_name, *method_args):
