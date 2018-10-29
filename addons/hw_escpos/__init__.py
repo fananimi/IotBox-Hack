@@ -1,3 +1,3 @@
-from . import controllers
+from . import controllers, escpos
 
-__all__ = ['controllers']
+__all__ = ['controllers', 'escpos']

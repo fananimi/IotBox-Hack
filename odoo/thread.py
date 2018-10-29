@@ -15,8 +15,17 @@ class WebThread(Thread):
     def run(self):
         app = Bottle()
 
+        def get_all_subclasses(cls):
+            all_subclasses = []
+
+            for subclass in cls.__subclasses__():
+                all_subclasses.append(subclass)
+                all_subclasses.extend(get_all_subclasses(subclass))
+
+            return all_subclasses
+
         # register all controller
-        controllers = [cls() for cls in Controller.__subclasses__()]
+        controllers = get_all_subclasses(Controller)
         for controller in controllers:
             controller.register(app)
 

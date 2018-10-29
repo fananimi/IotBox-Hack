@@ -31,7 +31,7 @@ class Proxy(http.Controller):
 
     @http.route('/hw_proxy/status_json', type='json', auth='none', cors='*')
     def status_json(self):
-        raise NotImplemented("Not Implemented Yet !")
+        return self.get_status()
 
     @http.route('/hw_proxy/scan_item_success', type='json', auth='none', cors='*')
     def scan_item_success(self, ean):
