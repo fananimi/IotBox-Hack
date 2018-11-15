@@ -4,6 +4,8 @@ from PyQt4.QtCore import QThread
 
 
 class Thread(QThread):
+    def isAlive(self):
+        return self.isRunning()
 
     def lockedstart(self):
         if not self.isRunning():

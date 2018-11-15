@@ -94,7 +94,7 @@ class EscposDriver(Thread):
 
     def lockedstart(self):
         with self.lock:
-            if not self.isRunning():
+            if not self.isAlive():
                 self.daemon = True
                 self.start()
 

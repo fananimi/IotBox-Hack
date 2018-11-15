@@ -1,2 +1,5 @@
 bottle==0.12.7
 pyusb==1.0.0b1
+Pillow==5.3.0
+
+# You also need to install PyQT, run "sudo apt-get install python-qt4"
