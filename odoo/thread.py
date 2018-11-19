@@ -8,7 +8,7 @@ class Thread(QThread):
         return self.isRunning()
 
     def lockedstart(self):
-        if not self.isRunning():
+        if not self.isAlive():
             self.start()
 
 

@@ -27,7 +27,46 @@ class Proxy(http.Controller):
 
     @http.route('/hw_proxy/status', type='http', auth='none', cors='*')
     def status_http(self, debug=None, **kwargs):
-        raise NotImplemented("Not Implemented Yet !")
+        resp = """
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Odoo's PosBox</title>
+        <style>
+            body {
+                width: 480px;
+                margin: 60px auto;
+                font-family: sans-serif;
+                text-align: justify;
+                color: #6B6B6B;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Hardware Status</h1>
+        <p>The list of enabled drivers and their status</p>
+"""
+        statuses = self.get_status()
+        for driver in statuses:
+            status = statuses[driver]
+
+            if status['status'] == 'connecting':
+                color = 'black'
+            elif status['status'] == 'connected':
+                color = 'green'
+            else:
+                color = 'red'
+
+            resp += "<h3 style='color:"+color+";'>"+driver+' : '+status['status']+"</h3>\n"
+            resp += "<ul>\n"
+            for msg in status['messages']:
+                resp += '<li>'+msg+'</li>\n'
+
+        resp += """
+    <body>
+</html>
+"""
+        return resp
 
     @http.route('/hw_proxy/status_json', type='json', auth='none', cors='*')
     def status_json(self):
