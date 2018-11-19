@@ -247,7 +247,6 @@ class Controller(object):
                     cls._app.route(callback=callable_method, path=rule,
                                    method=method, name=endpoint, **options)
 
-            logging.debug("%s : %s, Endpoint: %s" % (method, rule, endpoint))
 
     @classmethod
     def _build_route_rule(cls, func_name, *method_args):
