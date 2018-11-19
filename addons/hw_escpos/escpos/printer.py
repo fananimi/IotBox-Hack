@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 import usb.core
 import usb.util
 import serial
@@ -39,7 +40,7 @@ class Usb(Escpos):
         if self.device is None:
             raise NoDeviceError()
         try:
-            if self.device.is_kernel_driver_active(self.interface):
+            if os.name == 'posix' and self.device.is_kernel_driver_active(self.interface):
                 self.device.detach_kernel_driver(self.interface)
             self.device.set_configuration()
             usb.util.claim_interface(self.device, self.interface)
@@ -63,17 +64,31 @@ class Usb(Escpos):
         except usb.core.USBError as e:
             raise HandleDeviceError(e)
 
+    def close_on_posix(self):
+        if not self.device.is_kernel_driver_active(self.interface):
+            usb.util.release_interface(self.device, self.interface)
+            self.device.attach_kernel_driver(self.interface)
+            usb.util.dispose_resources(self.device)
+        else:
+            self.device = None
+
+    def close_on_nt(self):
+        if self.device:
+            usb.util.release_interface(self.device, self.interface)
+            usb.util.dispose_resources(self.device)
+        self.device = None
+
     def close(self):
         i = 0
         while True:
             try:
-                if not self.device.is_kernel_driver_active(self.interface):
-                    usb.util.release_interface(self.device, self.interface)
-                    self.device.attach_kernel_driver(self.interface)
-                    usb.util.dispose_resources(self.device)
-                else:
-                    self.device = None
+                if not self.device:
                     return True
+
+                if os.name == 'posix':
+                    self.close_on_posix()
+                if os.name == 'nt':
+                    self.close_on_nt()
             except usb.core.USBError as e:
                 i += 1
                 if i > 10:
