@@ -4,8 +4,10 @@ import signal
 import logging
 import ConfigParser
 
-from odoo.ui import Main
-from PyQt4.QtGui import QApplication
+from PyQt4 import QtCore, QtGui
+
+from static import images
+from odoo.ui import SystemTrayIcon
 
 
 __is_frozen__ = getattr(sys, 'frozen', False)
@@ -74,12 +76,19 @@ def setup_log():
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QApplication(sys.argv)
-    window = Main()
-    window.show()
-    app.exec_()
+    app = QtGui.QApplication(sys.argv)
+
+    w = QtGui.QWidget()
+    pixmap = QtGui.QPixmap()
+    pixmap.loadFromData(QtCore.QByteArray.fromBase64(images.printer_png))
+    icon = QtGui.QIcon(pixmap)
+    trayIcon = SystemTrayIcon(icon)
+
+    trayIcon.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
     setup_log()
     main()
+
