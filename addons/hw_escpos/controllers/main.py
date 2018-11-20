@@ -6,6 +6,7 @@ import subprocess
 
 import time
 import math
+import netifaces
 
 import traceback
 
@@ -194,37 +195,41 @@ class EscposDriver(Thread):
         self.queue.put((time.time(),task,data))
 
     def print_status(self,eprint):
-        localips = ['0.0.0.0','127.0.0.1','127.0.1.1']
-        hosting_ap = os.system('pgrep hostapd') == 0
-        ssid = subprocess.check_output('iwconfig 2>&1 | grep \'ESSID:"\' | sed \'s/.*"\\(.*\\)"/\\1/\'', shell=True).rstrip()
-        mac = subprocess.check_output('ifconfig | grep -B 1 \'inet addr\' | grep -o \'HWaddr .*\' | sed \'s/HWaddr //\'', shell=True).rstrip()
-        ips =  [ c.split(':')[1].split(' ')[0] for c in commands.getoutput("/sbin/ifconfig").split('\n') if 'inet addr' in c ]
-        ips =  [ ip for ip in ips if ip not in localips ]
-        eprint.text('\n\n')
-        eprint.set(align='center',type='b',height=2,width=2)
-        eprint.text('PosBox Status\n')
         eprint.text('\n')
+        eprint.set(align='center',type='b',height=2,width=2)
+        eprint.text('LinkBox Status\n')
         eprint.set(align='center')
+        eprint.text('________________________________\n')
+        eprint.text('\n')
 
-        if hosting_ap:
-            eprint.text('Wireless network:\nPosbox\n\n')
-        elif ssid:
-            eprint.text('Wireless network:\n' + ssid + '\n\n')
+        ips = []
+        for x in netifaces.interfaces():
+            try:
+                ips.append(netifaces.ifaddresses(x)[netifaces.AF_INET][0]['addr'])
+            except TypeError:
+                pass
+            except KeyError:
+                pass
 
-        if len(ips) == 0:
-            eprint.text('ERROR: Could not connect to LAN\n\nPlease check that the PosBox is correc-\ntly connected with a network cable,\n that the LAN is setup with DHCP, and\nthat network addresses are available')
-        elif len(ips) == 1:
-            eprint.text('IP Address:\n'+ips[0]+'\n')
+        if not ips:
+            eprint.set(align='center')
+            eprint.text('ERROR: Could not connect to LAN.\n')
+            eprint.text('\n')
+            eprint.set(align='left')
+            eprint.text('Please check that the LinkBox is\n')
+            eprint.text('correctly connected  with a net-\n')
+            eprint.text('work cable, that the LAN is set-\n')
+            eprint.text('up  with  DHCP,  and  that  net-\n')
+            eprint.text('work addresses are available.\n')
         else:
-            eprint.text('IP Addresses:\n')
+            eprint.set(align='center', font='b', type='u')
+            eprint.text('Homepage Addresses:\n\n')
+            eprint.set(align='center')
             for ip in ips:
-                eprint.text(ip+'\n')
+                homepage = 'http://%s:8080\n' % ip
+                eprint.text(homepage)
 
-        if len(ips) >= 1:
-            eprint.text('\nMAC Address:\n' + mac + '\n')
-            eprint.text('\nHomepage:\nhttp://'+ips[0]+':8069\n')
-
-        eprint.text('\n\n')
+        eprint.text('\n')
         eprint.cut()
 
     def print_receipt_body(self,eprint,receipt):
@@ -353,7 +358,7 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 
-#driver.push_task('printstatus')
+driver.push_task('printstatus')
 
 hw_proxy.drivers['escpos'] = driver
 
