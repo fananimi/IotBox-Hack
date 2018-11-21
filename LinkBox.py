@@ -80,7 +80,7 @@ def main():
 
     w = QtGui.QWidget()
     pixmap = QtGui.QPixmap()
-    pixmap.loadFromData(QtCore.QByteArray.fromBase64(images.printer_png))
+    pixmap.loadFromData(QtCore.QByteArray.fromBase64(images.icon))
     icon = QtGui.QIcon(pixmap)
     trayIcon = SystemTrayIcon(icon)
 
