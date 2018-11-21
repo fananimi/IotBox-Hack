@@ -1,6 +1,7 @@
 from odoo.thread import WebThread
 from addons.hw_proxy.controllers.main import drivers
 
+import release
 from PyQt4 import QtCore, QtGui
 
 
@@ -11,9 +12,13 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         QtGui.QSystemTrayIcon.__init__(self, icon, parent)
         menu = QtGui.QMenu(parent)
-        exitAction = menu.addAction("Exit")
+        # add menu
+        versionAction = menu.addAction("LinkBox %s" % release.version)
+        menu.addSeparator()
+        quitAction = menu.addAction("Quit LinkBox")
         self.setContextMenu(menu)
-        QtCore.QObject.connect(exitAction,QtCore.SIGNAL('triggered()'), self.exit)
+        # register signal
+        QtCore.QObject.connect(quitAction,QtCore.SIGNAL('triggered()'), self.quit)
 
         self.web_thread = WebThread()
         self.web_thread.start()
@@ -22,6 +27,6 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         for key in drivers.keys():
             drivers[key].start()
 
-    def exit(self):
+    def quit(self):
         QtCore.QCoreApplication.exit()
 

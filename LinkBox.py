@@ -6,7 +6,7 @@ import ConfigParser
 
 from PyQt4 import QtCore, QtGui
 
-from static import images
+from static.images import xpm
 from odoo.ui import SystemTrayIcon
 
 
@@ -78,12 +78,7 @@ def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtGui.QApplication(sys.argv)
 
-    w = QtGui.QWidget()
-    pixmap = QtGui.QPixmap()
-    pixmap.loadFromData(QtCore.QByteArray.fromBase64(images.icon))
-    icon = QtGui.QIcon(pixmap)
-    trayIcon = SystemTrayIcon(icon)
-
+    trayIcon =SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon)))
     trayIcon.show()
     sys.exit(app.exec_())
 
