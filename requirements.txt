@@ -4,5 +4,9 @@ pyserial==2.7
 netifaces==0.10.7
 Pillow==5.3.0
 
-# You also need to install PyQT, run "sudo apt-get install python-qt4"
+# You also need to install PyQT
+# for ubuntu users run "sudo apt-get install python-qt4"
+# for OsX users run "brew install cartr/qt4/pyqt"
+# if you use virtualenv, you need to create symlink of your PyQt4 instaled
+# for windows users, you can find the PyQT binary files on the directory `development-tools`
 
