@@ -1,5 +1,4 @@
-from bottle import Bottle
-from odoo.http import EnableCorsPlugin, JSONRPCPlugin, Controller
+from odoo.http import HTTPServer, EnableCorsPlugin, JSONRPCPlugin, Controller
 from PyQt4.QtCore import QThread
 
 
@@ -15,7 +14,7 @@ class Thread(QThread):
 class WebThread(Thread):
 
     def run(self):
-        app = Bottle()
+        app = HTTPServer()
 
         def get_all_subclasses(cls):
             all_subclasses = []

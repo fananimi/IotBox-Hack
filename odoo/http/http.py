@@ -2,7 +2,9 @@ import re
 import sys
 import inspect
 import logging
-from bottle import request, response, HTTPResponse, HTTPError
+
+from .core import request, response, HTTPResponse, HTTPError
+
 
 try: from simplejson import dumps as json_dumps
 except ImportError: # pragma: no cover
