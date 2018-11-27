@@ -78,7 +78,7 @@ def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtGui.QApplication(sys.argv)
 
-    trayIcon =SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon)))
+    trayIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))
     trayIcon.show()
     sys.exit(app.exec_())
 
