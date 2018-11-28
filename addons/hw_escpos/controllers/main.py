@@ -17,6 +17,7 @@ try:
 except ImportError:
     escpos = printer = None
 
+import release
 from odoo.thread import Thread
 from threading import Lock
 from Queue import Queue
@@ -203,6 +204,7 @@ class EscposDriver(Thread):
         eprint.set(align='center',type='b',height=2,width=2)
         eprint.text('LinkBox Status\n')
         eprint.set(align='center')
+        eprint.text("VERSION: %s\n" % release.version)
         eprint.text('________________________________\n')
         eprint.text('\n')
 
