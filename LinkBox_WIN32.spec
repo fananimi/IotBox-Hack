@@ -1,15 +1,18 @@
 # -*- mode: python -*-
-
-block_cipher = None
+import os
+cwd = os.getcwd()
 binaries = [
    ('C:\\Windows\\System32\\libusb0.dll', '.'),
 ]
 
-a = Analysis(['odoo-iot.py'],
-             pathex=['C:\\Users\\IEUser\\Desktop\\ls_posbox'],
+block_cipher = None
+
+
+a = Analysis(['LinkBox.py'],
+             pathex=[cwd],
              binaries=binaries,
              datas=[],
-             hiddenimports=['usb'],
+             hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],
@@ -25,10 +28,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='odoo-iot',
+          name='LinkBox',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
+          console=False,
+          icon='icon.ico')
