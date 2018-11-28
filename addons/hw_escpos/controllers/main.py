@@ -148,7 +148,11 @@ class EscposDriver(Thread):
                 error = True
                 timestamp, task, data = self.queue.get(True)
 
-                printer = self.get_escpos_printer()
+                printer = None
+                try:
+                    printer = self.get_escpos_printer()
+                except Exception as e:
+                    _logger.error(e)
 
                 if printer == None:
                     if task != 'status':
