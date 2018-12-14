@@ -17,7 +17,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 5c3e80d, 2017-08-06"
-   sodipodi:docname="Logo LinkBox.svg"
+   sodipodi:docname="LinkBox.svg"
    inkscape:export-filename="/Users/fananimi/drawing.png"
    inkscape:export-xdpi="1440"
    inkscape:export-ydpi="1440">
@@ -384,7 +384,7 @@
        x2="-96.586746"
        y2="280.47552"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.0002172,0,0,0.70352162,20.269003,94.597062)" />
+       gradientTransform="matrix(0.99999657,0,0,0.99999654,20.248089,27.542771)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -393,9 +393,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.6077112"
-     inkscape:cx="-306.48873"
-     inkscape:cy="66.621161"
+     inkscape:zoom="0.4019278"
+     inkscape:cx="-418.44914"
+     inkscape:cy="-296.47114"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -423,12 +423,16 @@
      inkscape:groupmode="layer"
      id="layer1">
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.08390334;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.10002151;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="rect1448"
-       width="74.224098"
-       height="52.206909"
-       x="-112.16843"
-       y="263.52914" />
+       width="74.207977"
+       height="74.207977"
+       x="-112.16037"
+       y="-341.87341"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       transform="scale(1,-1)" />
     <rect
        style="fill:#800080;stroke-width:0.17821875"
        id="rect10"
@@ -914,30 +918,34 @@
        d="m 88.036729,207.33501 v 1.92938 l -1.88376,1.08207 -1.89029,-1.08207 -0.0193,-2.60727 0.69746,-1.21895 0.0719,3.36999 1.13412,0.65182 1.13422,-0.65836 -0.0134,-3.383 0.75609,1.31669 z"
        id="path1163-1-4-5"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34" />
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png" />
     <path
        style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.20648827px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 84.171779,201.40509 v -1.92938 l 1.88376,-1.08207 1.89029,1.08207 0.0193,2.60728 -0.69745,1.21895 -0.0719,-3.36999 -1.13411,-0.65182 -1.13422,0.65836 0.0134,3.383 -0.7561,-1.31669 z"
        id="path1163-1-3-8-3"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34" />
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png" />
     <path
        style="fill:#0000ff;stroke:#3889ca;stroke-width:0.50054139;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 86.074789,203.0183 -0.007,2.74177"
        id="path1326-1-8-0-5"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34" />
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="77.541725"
        y="208.32643"
        id="text1181-6-4"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34"><tspan
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png"><tspan
          sodipodi:role="line"
          id="tspan1179-9-3"
          x="77.541725"
@@ -946,8 +954,9 @@
     <g
        id="g1461-4-6"
        transform="translate(240.93946,-150.96301)"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34">
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png">
       <path
          inkscape:connector-curvature="0"
          id="path1242-5-13-5"
@@ -975,8 +984,9 @@
        x="119.0225"
        y="208.16786"
        id="text1181-2-8-9"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34"><tspan
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png"><tspan
          sodipodi:role="line"
          id="tspan1179-4-1-1"
          x="119.0225"
@@ -988,8 +998,9 @@
        x="87.877403"
        y="208.18486"
        id="text1406-7"
-       inkscape:export-xdpi="1098.34"
-       inkscape:export-ydpi="1098.34"><tspan
+       inkscape:export-xdpi="160.89"
+       inkscape:export-ydpi="160.89"
+       inkscape:export-filename="/Users/fananimi/text1406-7.png"><tspan
          sodipodi:role="line"
          id="tspan1404-5"
          x="87.877403"
@@ -1131,51 +1142,6 @@
          y="221.19606"
          style="stroke-width:0.26458332">NKB</tspan></text>
     <g
-       id="g1507-1"
-       transform="translate(-35.51813,6.611075)">
-      <path
-         inkscape:connector-curvature="0"
-         id="path1163-1-5"
-         d="m -172.25533,430.3205 v 0.46905 l -0.55726,0.26306 -0.55919,-0.26306 -0.006,-0.63385 0.20633,-0.29634 0.0213,0.81928 0.33549,0.15846 0.33553,-0.16005 -0.004,-0.82245 0.22367,0.3201 z"
-         style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.05537488px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path1163-1-3-2"
-         d="m -173.39867,428.62157 v -0.46905 l 0.55726,-0.26306 0.55919,0.26306 0.006,0.63386 -0.20632,0.29634 -0.0213,-0.81928 -0.3355,-0.15847 -0.33552,0.16006 0.004,0.82244 -0.22367,-0.3201 z"
-         style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.05537488px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path1326-1-8-2"
-         d="m -172.83572,429.14241 -0.002,0.66656"
-         style="fill:#0000ff;stroke:#3889ca;stroke-width:0.13423243;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
-       id="g1461-4-6-9-2"
-       transform="translate(-80.13362,79.722725)"
-       inkscape:export-xdpi="1142.33"
-       inkscape:export-ydpi="1142.33">
-      <path
-         inkscape:connector-curvature="0"
-         id="path1242-5-13-5-0-4"
-         d="m -130.27075,353.06082 3.93871,2.27198"
-         style="fill:none;stroke:#3889cc;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path1244-2-7-9-6-9"
-         d="m -126.33204,355.3328 3.93084,-2.27198"
-         style="fill:none;stroke:#3889cc;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path1307-88-5-1-7"
-         d="m -130.27075,353.06082 3.9348,-2.27134 3.93475,2.27134 1.9e-4,4.54385 -3.93494,2.27198 -3.9348,-2.27166 z"
-         style="fill:none;stroke:#3889ca;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         inkscape:connector-curvature="0"
-         id="path1326-3-4-7-7"
-         d="m -126.33204,355.33279 -0.004,4.54385"
-         style="fill:none;stroke:#3889ca;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
        id="g1507-3-2"
        transform="matrix(1,0,0,-1,244.46362,663.23453)">
       <path
@@ -1214,148 +1180,134 @@
          style="fill:#0000ff;stroke:#3889ca;stroke-width:0.13423243;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <rect
-       style="fill:url(#linearGradient1096);fill-opacity:1;stroke:#000000;stroke-width:0.0838853;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#linearGradient1096);fill-opacity:1;stroke:#000000;stroke-width:0.09999964;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1004"
-       width="74.224373"
-       height="52.207115"
-       x="-112.16869"
-       y="263.52914"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
+       width="74.208"
+       height="74.208"
+       x="-112.16039"
+       y="267.66544"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
     <path
-       style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.07826296px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -55.064877,312.59201 v 0.73127 l -0.713981,0.41013 -0.716456,-0.41013 -0.0073,-0.9882 0.264351,-0.46201 0.02725,1.27729 0.429853,0.24705 0.429891,-0.24953 -0.0051,-1.28222 0.286573,0.49905 z"
+       style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.13064067px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -82.67641,281.85956 v 1.22068 l -1.191815,0.68461 -1.195946,-0.68461 -0.01218,-1.64956 0.441268,-0.77121 0.04549,2.13212 0.717534,0.41239 0.717597,-0.41653 -0.0085,-2.14035 0.478363,0.83304 z"
        id="path1163-1-4-5-7"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png" />
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png" />
     <path
-       style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.07826296px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -56.529766,310.34446 v -0.73127 l 0.71398,-0.41013 0.716456,0.41013 0.0073,0.9882 -0.264347,0.46201 -0.02725,-1.27729 -0.429849,-0.24705 -0.429891,0.24953 0.0051,1.28222 -0.286577,-0.49905 z"
+       style="fill:#3889ca;fill-opacity:1;stroke:#3889ca;stroke-width:0.13064067px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -85.12168,278.10783 v -1.22067 l 1.191813,-0.68461 1.195946,0.68461 0.01219,1.64956 -0.441262,0.77121 -0.04549,-2.13212 -0.717527,-0.41239 -0.717597,0.41653 0.0085,2.14035 -0.47837,-0.83304 z"
        id="path1163-1-3-8-3-9"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png" />
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png" />
     <path
-       style="fill:#0000ff;stroke:#3889ca;stroke-width:0.18971467;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -55.80849,310.95589 -0.0027,1.03919"
+       style="fill:#0000ff;stroke:#3889ca;stroke-width:0.31668177;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -83.917688,279.12847 -0.0045,1.73467"
        id="path1326-1-8-0-5-3"
        inkscape:connector-curvature="0"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png" />
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.01128387px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.10028209"
-       x="-59.042683"
-       y="312.96774"
+       style="font-style:normal;font-weight:normal;font-size:6.69584703px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16739616"
+       x="-89.316368"
+       y="282.48679"
        id="text1181-6-4-8"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"><tspan
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"><tspan
          sodipodi:role="line"
          id="tspan1179-9-3-0"
-         x="-59.042683"
-         y="312.96774"
-         style="fill:#000000;stroke-width:0.10028209">L</tspan></text>
+         x="-89.316368"
+         y="282.48679"
+         style="fill:#000000;stroke-width:0.16739616">L</tspan></text>
     <path
-       style="fill:none;stroke:#3889cc;stroke-width:0.18950947;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -46.486926,310.60701 1.492846,0.86112"
+       style="fill:none;stroke:#3889cc;stroke-width:0.31633922;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -68.35764,278.5461 2.491937,1.43742"
        id="path1242-5-13-5-4"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
     <path
-       style="fill:none;stroke:#3889cc;stroke-width:0.18950947;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -44.99408,311.46813 1.489863,-0.86112"
+       style="fill:none;stroke:#3889cc;stroke-width:0.31633922;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -65.865703,279.98352 2.486958,-1.43742"
        id="path1244-2-7-9-8"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
     <path
-       style="fill:none;stroke:#3889ca;stroke-width:0.37901893;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -46.486926,310.60701 1.491364,-0.86088 1.491345,0.86088 7.2e-5,1.7222 -1.491417,0.86113 -1.491364,-0.86101 z"
+       style="fill:none;stroke:#3889ca;stroke-width:0.63267845;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -68.35764,278.5461 2.489463,-1.43703 2.489432,1.43703 1.21e-4,2.87478 -2.489553,1.43745 -2.489463,-1.43725 z"
        id="path1307-88-5-3"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
     <path
-       style="fill:none;stroke:#3889ca;stroke-width:0.18950947;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m -44.99408,311.46813 -0.0015,1.7222"
+       style="fill:none;stroke:#3889ca;stroke-width:0.31633922;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -65.865703,279.98352 -0.0025,2.87479"
        id="path1326-3-4-9"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.01128387px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.10028209"
-       x="-43.320675"
-       y="312.90765"
+       style="font-style:normal;font-weight:normal;font-size:6.69584703px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16739616"
+       x="-63.072365"
+       y="282.38647"
        id="text1181-2-8-9-0"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"><tspan
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"><tspan
          sodipodi:role="line"
          id="tspan1179-4-1-1-5"
-         x="-43.320675"
-         y="312.90765"
-         style="fill:#000000;stroke-width:0.10028209">X</tspan></text>
+         x="-63.072365"
+         y="282.38647"
+         style="fill:#000000;stroke-width:0.16739616">X</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:4.01128387px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.10028209"
-       x="-55.125271"
-       y="312.91409"
+       style="font-style:normal;font-weight:normal;font-size:6.69584703px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.16739616"
+       x="-82.777222"
+       y="282.39722"
        id="text1406-7-2"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"><tspan
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"><tspan
          sodipodi:role="line"
          id="tspan1404-5-2"
-         x="-55.125271"
-         y="312.91409"
-         style="stroke-width:0.10028209">NKB</tspan></text>
+         x="-82.777222"
+         y="282.39722"
+         style="stroke-width:0.16739616">NKB</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="-75.182961"
-       y="294.43869"
+       x="-74.03096"
+       y="337.39185"
        id="text1100"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"><tspan
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999"><tspan
          sodipodi:role="line"
          id="tspan1098"
-         x="-75.182961"
-         y="294.43869"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.17499995px;line-height:0;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.26458332">Drag Icon to Application Folder</tspan></text>
+         x="-74.03096"
+         y="337.39185"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.17499995px;line-height:0;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.26458332">Drag Icon to Application Folder</tspan></text>
     <path
        style="fill:none;stroke:#3889ca;stroke-width:2.39154911;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
-       d="m -94.511484,281.74531 33.412766,-0.0748"
+       d="m -93.253127,292.81976 33.412766,-0.0748"
        id="path1110"
        inkscape:connector-curvature="0"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="-76.085793"
-       y="270.5199"
-       id="text1100-7"
-       inkscape:export-filename="/Users/fananimi/rect1417.png"
-       inkscape:export-xdpi="237.35001"
-       inkscape:export-ydpi="237.35001"><tspan
-         sodipodi:role="line"
-         id="tspan1098-9"
-         x="-76.085793"
-         y="270.5199"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.23333311px;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.26458332">INSTALLATION</tspan></text>
+       inkscape:export-filename="/Users/fananimi/BG_Installer.png"
+       inkscape:export-xdpi="350.01999"
+       inkscape:export-ydpi="350.01999" />
   </g>
 </svg>
