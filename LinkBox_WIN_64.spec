@@ -1,13 +1,16 @@
 # -*- mode: python -*-
 import os
 cwd = os.getcwd()
+binaries = [
+   ('C:\\Windows\\System32\\libusb0.dll', '.'),
+]
 
 block_cipher = None
 
 
 a = Analysis(['LinkBox.py'],
              pathex=[cwd],
-             binaries=[('/usr/lib/x86_64-linux-gnu/qt4/plugins/systemtrayicon/libsni-qt.so', 'qt4_plugins/systemtrayicon')],
+             binaries=binaries,
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -31,4 +34,5 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
+          console=False,
+          icon='icon.ico')

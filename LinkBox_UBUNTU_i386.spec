@@ -1,10 +1,12 @@
 # -*- mode: python -*-
+import os
+cwd = os.getcwd()
 
 block_cipher = None
 
 
 a = Analysis(['LinkBox.py'],
-             pathex=['/home/fananimi/Desktop/linkbox-bin'],
+             pathex=[cwd],
              binaries=[('/usr/lib/i386-linux-gnu/qt4/plugins/systemtrayicon/libsni-qt.so', 'qt4_plugins/systemtrayicon')],
              datas=[],
              hiddenimports=[],

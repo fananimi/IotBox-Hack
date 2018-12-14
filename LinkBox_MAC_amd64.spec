@@ -7,7 +7,7 @@ block_cipher = None
 
 a = Analysis(['LinkBox.py'],
              pathex=[cwd],
-             binaries=[('/usr/lib/x86_64-linux-gnu/qt4/plugins/systemtrayicon/libsni-qt.so', 'qt4_plugins/systemtrayicon')],
+             binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -31,4 +31,8 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
+          console=False , icon='icon.icns')
+app = BUNDLE(exe,
+             name='LinkBox.app',
+             icon='icon.icns',
+             bundle_identifier='LinkBox')
