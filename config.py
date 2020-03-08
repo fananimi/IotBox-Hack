@@ -1,12 +1,15 @@
 import os
+import sys
 import logging
 import ConfigParser
 
 
 # the singleton config class
 class Config(ConfigParser.RawConfigParser):
-    __instance = None
+    is_frozen = False
     __config_file = None
+    __base_path = None
+    __instance = None
 
     @staticmethod
     def getInstance():
@@ -17,7 +20,14 @@ class Config(ConfigParser.RawConfigParser):
 
     def __init__(self):
         ConfigParser.RawConfigParser.__init__(self)
-        self.__config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.ini')
+
+        self.is_frozen = getattr(sys, 'frozen', False)
+        if self.is_frozen:
+            self.__base_path = os.path.dirname(sys.executable)
+        else:
+            self.__base_path = os.path.dirname(os.path.abspath(__file__))
+
+        self.__config_file = os.path.join(self.__base_path, 'config.ini')
         """ Virtually private constructor. """
         if Config.__instance is not None:
             raise Exception("This class is a singleton!")
@@ -72,3 +82,10 @@ class Config(ConfigParser.RawConfigParser):
             self._write_log('LOG', 'name', logname)
 
         return logname
+
+    def get_log_file(self):
+        logpath = os.path.join(self.__base_path, 'logs')
+        if not os.path.exists(logpath):
+            os.makedirs(logpath)
+        logfile = os.path.join(logpath, self.get_log_name())
+        return logfile

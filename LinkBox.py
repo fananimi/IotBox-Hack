@@ -15,32 +15,20 @@ from config import Config
 __config = Config.getInstance()
 
 
-__is_frozen__ = getattr(sys, 'frozen', False)
-if __is_frozen__:
-    BASE_PATH = os.path.dirname(sys.executable)
-else:
-    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-
 def setup_log():
     logformat = '%(asctime)s - %(funcName)s - %(levelname)s: %(message)s'
 
-    if __is_frozen__ is False:
+    if __config.is_frozen is False:
         logging.basicConfig(
             format=logformat,
             level=__config.get_log_level(),
             handlers=[logging.StreamHandler()]
         )
     else:
-        logpath = os.path.join(BASE_PATH, 'logs')
-        if not os.path.exists(logpath):
-            os.makedirs(logpath)
-        logfile = os.path.join(logpath, __config.get_log_name())
-
         logging.basicConfig(
             format=logformat,
             level=__config.get_log_level(),
-            filename=logfile,
+            filename=__config.get_log_file(),
             filemode='a'
         )
 
