@@ -4,6 +4,7 @@
 !.gitignore
 !*.sample
 config.ini
+logs/
 tmp/
 
 # IntelliJ project files
