@@ -1,6 +1,3 @@
-from odoo.thread import WebThread
-from addons.hw_proxy.controllers.main import drivers
-
 import release
 from PyQt4 import QtCore, QtGui
 
@@ -20,13 +17,5 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         # register signal
         QtCore.QObject.connect(quitAction,QtCore.SIGNAL('triggered()'), self.quit)
 
-        self.web_thread = WebThread()
-        self.web_thread.start()
-
-        # run all driver
-        for key in drivers.keys():
-            drivers[key].start()
-
     def quit(self):
         QtCore.QCoreApplication.exit()
-
