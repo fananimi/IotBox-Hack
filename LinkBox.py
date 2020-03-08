@@ -8,6 +8,7 @@ from PyQt4 import QtCore, QtGui
 
 from static.images import xpm
 from odoo.ui import SystemTrayIcon
+from ui.main import Ui_Dialog
 
 
 __is_frozen__ = getattr(sys, 'frozen', False)
@@ -74,12 +75,24 @@ def setup_log():
         )
 
 
+class LinkBox(QtGui.QDialog, Ui_Dialog):
+
+    def __init__(self, parent=None):
+        super(LinkBox, self).__init__(parent)
+        self.setupUi(self)
+
+
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QtGui.QApplication(sys.argv)
 
-    trayIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))
-    trayIcon.show()
+    # show system try icon
+    systemTryIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))
+    systemTryIcon.show()
+    # ui dialog
+    dialog = LinkBox()
+    dialog.show()
+
     sys.exit(app.exec_())
 
 
