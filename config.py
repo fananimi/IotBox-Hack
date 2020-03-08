@@ -55,7 +55,21 @@ class Config(ConfigParser.RawConfigParser):
             self.write(config_file)
 
     def get_service_port(self):
-        raise NotImplemented()
+        serviceport = 8080
+        try:
+            serviceport = self.getint('SERVICE', 'port')
+            if not 1024 <= serviceport <= 65535:
+                serviceport = 8080
+                raise ValueError('port must be 1024-65535')
+        except ConfigParser.NoSectionError:
+            self.add_section('SERVICE')
+            self._write_log('SERVICE', 'port', serviceport)
+        except ConfigParser.NoOptionError:
+            self._write_log('SERVICE', 'port', serviceport)
+        except ValueError:
+            self._write_log('SERVICE', 'port', serviceport)
+
+        return serviceport
 
     def get_log_level(self):
         loglevel = 'ERROR'

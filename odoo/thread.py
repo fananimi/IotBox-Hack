@@ -1,6 +1,8 @@
 from odoo.http import HTTPServer, EnableCorsPlugin, JSONRPCPlugin, Controller
 from PyQt4.QtCore import QThread
 
+from config import Config
+
 
 class Thread(QThread):
     def isAlive(self):
@@ -32,4 +34,5 @@ class WebThread(Thread):
 
         app.install(EnableCorsPlugin())
         app.install(JSONRPCPlugin())
-        app.run(host='localhost', port=8080, debug=False)
+        port = Config.getInstance().get_service_port()
+        app.run(host='localhost', port=port, debug=False)
