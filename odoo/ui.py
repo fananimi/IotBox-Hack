@@ -1,7 +1,7 @@
 import release
 from PyQt4 import QtCore, QtGui
 
-from config import StateManagement
+from state import StateManager
 
 
 class SystemTrayIcon(QtGui.QSystemTrayIcon):
@@ -24,4 +24,4 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         QtCore.QCoreApplication.exit()
 
     def show_dialog(self):
-        StateManagement.getInstance().show_dialog()
+        StateManager.getInstance().show_dialog()

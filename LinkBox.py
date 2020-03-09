@@ -1,4 +1,3 @@
-import os
 import sys
 import signal
 import logging
@@ -11,24 +10,24 @@ from odoo.ui import SystemTrayIcon
 from static.images import xpm
 from ui.main import Ui_Dialog
 
-from config import StateManagement
-__config = StateManagement.getInstance()
+from state import StateManager
 
 
 def setup_log():
+    state = StateManager.getInstance()
     logformat = '%(asctime)s - %(funcName)s - %(levelname)s: %(message)s'
 
-    if __config.is_frozen is False:
+    if state.is_frozen is False:
         logging.basicConfig(
             format=logformat,
-            level=__config.get_log_level(),
+            level=state.get_log_level(),
             handlers=[logging.StreamHandler()]
         )
     else:
         logging.basicConfig(
             format=logformat,
-            level=__config.get_log_level(),
-            filename=__config.get_log_file(),
+            level=state.get_log_level(),
+            filename=state.get_log_file(),
             filemode='a'
         )
 
@@ -37,7 +36,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
     def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
-        StateManagement.getInstance().set_dialog(self)
+        StateManager.getInstance().set_dialog(self)
         self.setupUi(self)
 
         self.web_thread = WebThread()
@@ -56,7 +55,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnReload.clicked.connect(self.on_click_button)
 
     def update_status(self):
-        self.txtPort.setText('%d' % StateManagement.getInstance().get_service_port())
+        self.txtPort.setText('%d' % StateManager.getInstance().get_service_port())
 
     def on_click_button(self):
         btn_name = self.sender().objectName()
@@ -86,4 +85,3 @@ def main():
 if __name__ == '__main__':
     setup_log()
     main()
-
