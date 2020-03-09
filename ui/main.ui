@@ -109,7 +109,7 @@
          <item row="0" column="1">
           <widget class="QSpinBox" name="spnPort">
            <property name="minimum">
-            <number>1025</number>
+            <number>1024</number>
            </property>
            <property name="maximum">
             <number>65535</number>

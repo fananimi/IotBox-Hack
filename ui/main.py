@@ -66,7 +66,7 @@ class Ui_Dialog(object):
         self.label.setObjectName(_fromUtf8("label"))
         self.formLayout_2.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
         self.spnPort = QtGui.QSpinBox(self.groupBox_2)
-        self.spnPort.setMinimum(1025)
+        self.spnPort.setMinimum(1024)
         self.spnPort.setMaximum(65535)
         self.spnPort.setProperty("value", 8080)
         self.spnPort.setObjectName(_fromUtf8("spnPort"))
