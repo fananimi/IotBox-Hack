@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
 import logging
-import commands
-import subprocess
 
 import time
 import math

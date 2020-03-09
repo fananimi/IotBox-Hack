@@ -11,8 +11,8 @@ from odoo.ui import SystemTrayIcon
 from static.images import xpm
 from ui.main import Ui_Dialog
 
-from config import Config
-__config = Config.getInstance()
+from config import StateManagement
+__config = StateManagement.getInstance()
 
 
 def setup_log():
@@ -37,6 +37,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
     def __init__(self, config, parent=None):
         super(LinkBox, self).__init__(parent)
+        self.config = config
         self.setupUi(self)
 
         self.web_thread = WebThread()
@@ -45,6 +46,27 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # run all driver
         for key in drivers.keys():
             drivers[key].start()
+
+        # update status
+        self.update_status()
+
+        # register signal
+        self.btnClose.clicked.connect(self.on_click_button)
+        self.btnApply.clicked.connect(self.on_click_button)
+        self.btnReload.clicked.connect(self.on_click_button)
+
+    def update_status(self):
+        self.txtPort.setText('%d' % self.config.get_service_port())
+
+    def on_click_button(self):
+        btn_name = self.sender().objectName()
+        if btn_name == 'btnClose':
+            self.hide()
+            return
+        if btn_name == 'btnApply':
+            return
+        if btn_name == 'btnReload':
+            return
 
 
 def main():

@@ -5,7 +5,7 @@ import ConfigParser
 
 
 # the singleton config class
-class Config(ConfigParser.RawConfigParser):
+class StateManagement(ConfigParser.RawConfigParser):
     is_frozen = False
     base_path = None
     config_file = None
@@ -14,9 +14,9 @@ class Config(ConfigParser.RawConfigParser):
     @staticmethod
     def getInstance():
         """ Static access method. """
-        if Config.__instance is None:
-            Config()
-        return Config.__instance
+        if StateManagement.__instance is None:
+            StateManagement()
+        return StateManagement.__instance
 
     def __init__(self):
         ConfigParser.RawConfigParser.__init__(self)
@@ -29,7 +29,7 @@ class Config(ConfigParser.RawConfigParser):
 
         self.config_file = os.path.join(self.base_path, 'config.ini')
         """ Virtually private constructor. """
-        if Config.__instance is not None:
+        if StateManagement.__instance is not None:
             raise Exception("This class is a singleton!")
         else:
             try:
@@ -41,7 +41,7 @@ class Config(ConfigParser.RawConfigParser):
             except ConfigParser.ParsingError:
                 self._create_log()
 
-            Config.__instance = self
+            StateManagement.__instance = self
 
     def _create_log(self):
         for section in self.sections():

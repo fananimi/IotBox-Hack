@@ -11,11 +11,15 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         menu = QtGui.QMenu(parent)
         # add menu
         versionAction = menu.addAction("LinkBox %s" % release.version)
+        QtCore.QObject.connect(versionAction, QtCore.SIGNAL('triggered()'), self.show_dialog)
         menu.addSeparator()
-        quitAction = menu.addAction("Quit LinkBox")
+        quitAction = menu.addAction("Quit")
         self.setContextMenu(menu)
         # register signal
         QtCore.QObject.connect(quitAction,QtCore.SIGNAL('triggered()'), self.quit)
 
     def quit(self):
         QtCore.QCoreApplication.exit()
+
+    def show_dialog(self):
+        print("show dialog")
