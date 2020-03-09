@@ -35,9 +35,9 @@ def setup_log():
 
 class LinkBox(QtGui.QDialog, Ui_Dialog):
 
-    def __init__(self, config, parent=None):
+    def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
-        self.config = config
+        StateManagement.getInstance().set_dialog(self)
         self.setupUi(self)
 
         self.web_thread = WebThread()
@@ -56,7 +56,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnReload.clicked.connect(self.on_click_button)
 
     def update_status(self):
-        self.txtPort.setText('%d' % self.config.get_service_port())
+        self.txtPort.setText('%d' % StateManagement.getInstance().get_service_port())
 
     def on_click_button(self):
         btn_name = self.sender().objectName()
@@ -77,7 +77,7 @@ def main():
     systemTryIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))
     systemTryIcon.show()
     # ui dialog
-    dialog = LinkBox(__config)
+    dialog = LinkBox()
     dialog.show()
 
     sys.exit(app.exec_())

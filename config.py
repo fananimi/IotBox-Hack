@@ -9,6 +9,7 @@ class StateManagement(ConfigParser.RawConfigParser):
     is_frozen = False
     base_path = None
     config_file = None
+    dialog = None
     __instance = None
 
     @staticmethod
@@ -53,6 +54,12 @@ class StateManagement(ConfigParser.RawConfigParser):
         with open(self.config_file, "wb") as config_file:
             self.set(section, option, value)
             self.write(config_file)
+
+    def set_dialog(self, dialog):
+        self.dialog = dialog
+
+    def show_dialog(self):
+        self.dialog.show()
 
     def get_service_port(self):
         serviceport = 8080
