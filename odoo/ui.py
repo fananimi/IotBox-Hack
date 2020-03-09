@@ -3,6 +3,7 @@ from PyQt4 import QtCore, QtGui
 
 from config import StateManagement
 
+
 class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
     def __init__(self, icon, parent=None):
