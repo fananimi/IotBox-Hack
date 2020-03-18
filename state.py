@@ -37,23 +37,26 @@ class StateManager(ConfigParser.RawConfigParser):
                 if os.path.exists(self.config_file):
                     self.readfp(open(self.config_file))
                 else:
-                    self._create_log()
+                    self._create_config()
                     self.readfp(open(self.config_file))
             except ConfigParser.ParsingError:
-                self._create_log()
+                self._create_config()
 
             StateManager.__instance = self
 
-    def _create_log(self):
+    def _create_config(self):
         for section in self.sections():
-            self.remove_section(section)
+            self._remove_section(section)
         with open(self.config_file, "wb") as config_file:
             self.write(config_file)
 
-    def _write_log(self, section, option, value):
+    def _write_config(self, section, option, value):
         with open(self.config_file, "wb") as config_file:
             self.set(section, option, value)
             self.write(config_file)
+
+    def _remove_section(self, section):
+        self.remove_section(section)
 
     def set_dialog(self, dialog):
         self.dialog = dialog
@@ -70,11 +73,11 @@ class StateManager(ConfigParser.RawConfigParser):
                 raise ValueError('port must be 1024-65535')
         except ConfigParser.NoSectionError:
             self.add_section('SERVICE')
-            self._write_log('SERVICE', 'port', serviceport)
+            self._write_config('SERVICE', 'port', serviceport)
         except ConfigParser.NoOptionError:
-            self._write_log('SERVICE', 'port', serviceport)
+            self._write_config('SERVICE', 'port', serviceport)
         except ValueError:
-            self._write_log('SERVICE', 'port', serviceport)
+            self._write_config('SERVICE', 'port', serviceport)
 
         return serviceport
 
@@ -85,12 +88,12 @@ class StateManager(ConfigParser.RawConfigParser):
             all_levels = [fmt for fmt in logging._levelNames if isinstance(fmt, str)]
             if loglevel.upper() not in all_levels:
                 loglevel = 'ERROR'
-                self._write_log('LOG', 'level', loglevel)
+                self._write_config('LOG', 'level', loglevel)
         except ConfigParser.NoSectionError:
             self.add_section('LOG')
-            self._write_log('LOG', 'level', loglevel)
+            self._write_config('LOG', 'level', loglevel)
         except ConfigParser.NoOptionError:
-            self._write_log('LOG', 'level', loglevel)
+            self._write_config('LOG', 'level', loglevel)
 
         return loglevel
 
@@ -100,9 +103,9 @@ class StateManager(ConfigParser.RawConfigParser):
             logname = self.get('LOG', 'name')
         except ConfigParser.NoSectionError:
             self.add_section('LOG')
-            self._write_log('LOG', 'name', logname)
+            self._write_config('LOG', 'name', logname)
         except ConfigParser.NoOptionError:
-            self._write_log('LOG', 'name', logname)
+            self._write_config('LOG', 'name', logname)
 
         return logname
 
