@@ -56,26 +56,27 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnReload.clicked.connect(self.on_click_button)
 
         # printer object handler
-        printer_model = QtGui.QStandardItemModel()
+        self.printer_model = QtGui.QStandardItemModel()
         for printer in FindPrinters():
             printer_item = QtGui.QStandardItem(printer.description)
-            printer_item.setData(printer.id)
-            printer_model.appendRow(printer_item)
-        self.cmbThermal.setModel(printer_model)
-        self.cmbLabel.setModel(printer_model)
+            printer_item.setData(printer)
+            self.printer_model.appendRow(printer_item)
+        self.cmbLabel.setModel(self.printer_model)
+        self.cmbThermal.setModel(self.printer_model)
 
         # combobox signal handlers
-        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
         self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
 
     def update_status(self):
         self.txtPort.setText('%d' % StateManager.getInstance().get_service_port())
 
-    def on_combobox_index_changed(self):
+    @QtCore.pyqtSlot(int)
+    def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()
-        if cmbID == 'cmbThermal':
-            return
         if cmbID == 'cmbLabel':
+            return
+        if cmbID == 'cmbThermal':
             return
 
     def on_click_button(self):
@@ -84,6 +85,12 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             self.hide()
             return
         if btnID == 'btnApply':
+            cmbLabelIDx = self.cmbLabel.currentIndex()
+            cmbThermalIDx = self.cmbThermal.currentIndex()
+            selected_label_printer = self.printer_model.item(cmbLabelIDx).data().toPyObject()
+            selected_thermal_printer = self.printer_model.item(cmbThermalIDx).data().toPyObject()
+            print(selected_label_printer.description)
+            print(selected_thermal_printer.description)
             return
         if btnID == 'btnReload':
             return
