@@ -1,13 +1,10 @@
 import os
 import sys
-import operator
 import logging
 import ConfigParser
 
-from printer import Printer
 
-
-# the singleton config class
+# The Singleton Class to handle state of the application
 class StateManager(ConfigParser.RawConfigParser):
     is_frozen = False
     base_path = None
