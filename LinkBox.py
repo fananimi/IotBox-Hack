@@ -44,10 +44,6 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
         # attribute registration
         self.printer_model = QtGui.QStandardItemModel()
-        for printer in FindPrinters():
-            printer_item = QtGui.QStandardItem(printer.description)
-            printer_item.setData(printer)
-            self.printer_model.appendRow(printer_item)
 
         # update status
         self._init_ui()
@@ -60,6 +56,10 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # set spinbox
         self.spnPort.setValue(ws_port)
         # set combobox
+        for printer in FindPrinters():
+            printer_item = QtGui.QStandardItem(printer.description)
+            printer_item.setData(printer)
+            self.printer_model.appendRow(printer_item)
         self.cmbLabel.setModel(self.printer_model)
         self.cmbThermal.setModel(self.printer_model)
         # set status
