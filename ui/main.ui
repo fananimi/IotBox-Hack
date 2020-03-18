@@ -191,21 +191,21 @@ QGroupBox::title {
          <item row="0" column="2">
           <widget class="QLabel" name="txtPort">
            <property name="text">
-            <string>N/A</string>
+            <string>None</string>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="txtPrinterLabel">
            <property name="text">
-            <string>N/A</string>
+            <string>Disconnected</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="txtPrinterThermal">
            <property name="text">
-            <string>N/A</string>
+            <string>Disconnected</string>
            </property>
           </widget>
          </item>
