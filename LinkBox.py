@@ -37,7 +37,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
     def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
-        StateManager.getInstance().set_dialog(self)
+        self.state = StateManager.getInstance()
+        self.state.set_dialog(self)
         self.setupUi(self)
         self._register_thread()
         self._register_signal()
@@ -53,7 +54,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # ********************* All functions shown to user is here *********************|
     # --------------------------------------------------------------------------------
     def _init_ui(self):
-        ws_port = StateManager.getInstance().web_service.port
+        ws_port = self.state.web_service.port
         # set spinbox
         self.spnPort.setValue(ws_port)
         # set combobox
@@ -105,7 +106,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             cmbThermalIDx = self.cmbThermal.currentIndex()
             selected_label_printer = self.printer_model.item(cmbLabelIDx).data().toPyObject()
             # selected_thermal_printer = self.printer_model.item(cmbThermalIDx).data().toPyObject()
-            StateManager.getInstance().set_label_printer(selected_label_printer)
+            self.state.set_label_printer(selected_label_printer)
             return
         if btnID == 'btnReload':
             self._reload_printers()
@@ -115,14 +116,13 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # *************************** Other function is here *************************** |
     # --------------------------------------------------------------------------------
     def _reload_printers(self):
-        config = StateManager.getInstance()
         self.cmbLabel.clear()
         self.cmbThermal.clear()
         printers = [printer for printer in FindPrinters()]
 
         def add_to_model(type):
             _printers = printers
-            _printers.append(config.get_printer(type))
+            _printers.append(self.state.get_printer(type))
 
             for printer in list(set(_printers)):
                 _item = QtGui.QStandardItem(printer.description)
