@@ -274,6 +274,9 @@ QGroupBox::title {
       </item>
       <item>
        <widget class="QPushButton" name="btnApply">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Apply</string>
         </property>

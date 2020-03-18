@@ -39,34 +39,23 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         super(LinkBox, self).__init__(parent)
         StateManager.getInstance().set_dialog(self)
         self.setupUi(self)
+        self._register_thread()
+        self._register_signal()
 
-        self.web_thread = WebThread()
-        self.web_thread.start()
-
-        # run all driver
-        for key in drivers.keys():
-            drivers[key].start()
-
-        # button signal handlers
-        self.btnClose.clicked.connect(self.on_click_button)
-        self.btnApply.clicked.connect(self.on_click_button)
-        self.btnReload.clicked.connect(self.on_click_button)
-
-        # printer object handler
+        # attribute registration
         self.printer_model = QtGui.QStandardItemModel()
         for printer in FindPrinters():
             printer_item = QtGui.QStandardItem(printer.description)
             printer_item.setData(printer)
             self.printer_model.appendRow(printer_item)
 
-        # combobox signal handlers
-        self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
-        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
-
         # update status
-        self.update_ui()
+        self._init_ui()
 
-    def update_ui(self):
+    # --------------------------------------------------------------------------------
+    # ********************* All functions shown to user is here *********************|
+    # --------------------------------------------------------------------------------
+    def _init_ui(self):
         ws_port = StateManager.getInstance().web_service.port
         # set spinbox
         self.spnPort.setValue(ws_port)
@@ -76,6 +65,29 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # set status
         self.txtPort.setText('%d' % ws_port)
 
+    # --------------------------------------------------------------------------------
+    # ****************** All threads must register on this section ******************|
+    # --------------------------------------------------------------------------------
+    def _register_thread(self):
+        self.web_thread = WebThread()
+        self.web_thread.start()
+        # run all driver
+        for key in drivers.keys():
+            drivers[key].start()
+
+    # --------------------------------------------------------------------------------
+    # ****************** All signals must register on this section ******************|
+    # --------------------------------------------------------------------------------
+    def _register_signal(self):
+        self.btnClose.clicked.connect(self.on_click_button)
+        self.btnApply.clicked.connect(self.on_click_button)
+        self.btnReload.clicked.connect(self.on_click_button)
+        self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+
+    # --------------------------------------------------------------------------------
+    # ******************** Callback function for signals is here ********************|
+    # --------------------------------------------------------------------------------
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()

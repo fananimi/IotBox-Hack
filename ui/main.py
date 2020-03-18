@@ -128,6 +128,7 @@ class Ui_Dialog(object):
         self.btnReload.setObjectName(_fromUtf8("btnReload"))
         self.horizontalLayout.addWidget(self.btnReload)
         self.btnApply = QtGui.QPushButton(self.frame_2)
+        self.btnApply.setEnabled(False)
         self.btnApply.setObjectName(_fromUtf8("btnApply"))
         self.horizontalLayout.addWidget(self.btnApply)
         self.btnClose = QtGui.QPushButton(self.frame_2)
