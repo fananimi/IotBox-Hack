@@ -8,9 +8,25 @@ _logger = logging.getLogger(__name__)
 class Printer(object):
 
     def __init__(self, product_id, vendor_id, description):
+        self.id = '%d@%d' % (product_id, vendor_id)
         self.product_id = product_id
         self.vendor_id = vendor_id
         self.description = description
+
+    def __repr__(self):
+        return self.description
+
+    def __str__(self):
+        return self.description
+
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__ and
+            self.id == other.id
+        )
+
+    def __hash__(self):
+        return hash(self.id)
 
 
 class FindPrinters(object):
