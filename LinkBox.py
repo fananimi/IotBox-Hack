@@ -11,6 +11,7 @@ from static.images import xpm
 from ui.main import Ui_Dialog
 
 from state import StateManager
+from printer import FindPrinters
 
 
 def setup_log():
@@ -49,22 +50,42 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # update status
         self.update_status()
 
-        # register signal
+        # button signal handlers
         self.btnClose.clicked.connect(self.on_click_button)
         self.btnApply.clicked.connect(self.on_click_button)
         self.btnReload.clicked.connect(self.on_click_button)
 
+        # printer object handler
+        printer_model = QtGui.QStandardItemModel()
+        for printer in FindPrinters():
+            printer_item = QtGui.QStandardItem(printer.description)
+            printer_item.setData(printer.id)
+            printer_model.appendRow(printer_item)
+        self.cmbThermal.setModel(printer_model)
+        self.cmbLabel.setModel(printer_model)
+
+        # combobox signal handlers
+        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+
     def update_status(self):
         self.txtPort.setText('%d' % StateManager.getInstance().get_service_port())
 
+    def on_combobox_index_changed(self):
+        cmbID = self.sender().objectName()
+        if cmbID == 'cmbThermal':
+            return
+        if cmbID == 'cmbLabel':
+            return
+
     def on_click_button(self):
-        btn_name = self.sender().objectName()
-        if btn_name == 'btnClose':
+        btnID = self.sender().objectName()
+        if btnID == 'btnClose':
             self.hide()
             return
-        if btn_name == 'btnApply':
+        if btnID == 'btnApply':
             return
-        if btn_name == 'btnReload':
+        if btnID == 'btnReload':
             return
 
 
