@@ -21,14 +21,14 @@ def setup_log():
     if state.is_frozen is False:
         logging.basicConfig(
             format=logformat,
-            level=state.get_log_level(),
+            level=state.log.level,
             handlers=[logging.StreamHandler()]
         )
     else:
         logging.basicConfig(
             format=logformat,
-            level=state.get_log_level(),
-            filename=state.get_log_file(),
+            level=state.log.level,
+            filename=state.get_log().filename,
             filemode='a'
         )
 
@@ -88,9 +88,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             cmbLabelIDx = self.cmbLabel.currentIndex()
             cmbThermalIDx = self.cmbThermal.currentIndex()
             selected_label_printer = self.printer_model.item(cmbLabelIDx).data().toPyObject()
-            selected_thermal_printer = self.printer_model.item(cmbThermalIDx).data().toPyObject()
-            print(selected_label_printer.description)
-            print(selected_thermal_printer.description)
+            # selected_thermal_printer = self.printer_model.item(cmbThermalIDx).data().toPyObject()
+            StateManager.getInstance().set_label_printer(selected_label_printer)
             return
         if btnID == 'btnReload':
             return

@@ -3,6 +3,8 @@ import sys
 import logging
 import ConfigParser
 
+from printer import Printer
+
 
 # the singleton config class
 class StateManager(ConfigParser.RawConfigParser):
@@ -66,52 +68,61 @@ class StateManager(ConfigParser.RawConfigParser):
 
     def get_service_port(self):
         serviceport = 8080
+        section_key = 'SERVICE'
+        if section_key not in self.sections():
+            self.add_section(section_key)
+
         try:
-            serviceport = self.getint('SERVICE', 'port')
+            serviceport = self.getint(section_key, 'port')
             if not 1024 <= serviceport <= 65535:
                 serviceport = 8080
                 raise ValueError('port must be 1024-65535')
-        except ConfigParser.NoSectionError:
-            self.add_section('SERVICE')
-            self._write_config('SERVICE', 'port', serviceport)
         except ConfigParser.NoOptionError:
-            self._write_config('SERVICE', 'port', serviceport)
+            self._write_config(section_key, 'port', serviceport)
         except ValueError:
-            self._write_config('SERVICE', 'port', serviceport)
+            self._write_config(section_key, 'port', serviceport)
 
         return serviceport
 
-    def get_log_level(self):
-        loglevel = 'ERROR'
-        try:
-            loglevel = self.get('LOG', 'level')
-            all_levels = [fmt for fmt in logging._levelNames if isinstance(fmt, str)]
-            if loglevel.upper() not in all_levels:
-                loglevel = 'ERROR'
-                self._write_config('LOG', 'level', loglevel)
-        except ConfigParser.NoSectionError:
-            self.add_section('LOG')
-            self._write_config('LOG', 'level', loglevel)
-        except ConfigParser.NoOptionError:
-            self._write_config('LOG', 'level', loglevel)
+    @property
+    def log(self):
+        '''
+        short-cut of get_log function
+        :return: Log object
+        '''
+        return self.get_log()
 
-        return loglevel
+    def get_log(self):
+        '''
+        :return: Log object
+        '''
+        class Log:
+            def __init__(self, base_path):
+                self.base_path = base_path
+                self.level = ''
+                self.name = ''
 
-    def get_log_name(self):
-        logname = 'odoo.log'
-        try:
-            logname = self.get('LOG', 'name')
-        except ConfigParser.NoSectionError:
-            self.add_section('LOG')
-            self._write_config('LOG', 'name', logname)
-        except ConfigParser.NoOptionError:
-            self._write_config('LOG', 'name', logname)
+            @property
+            def filename(self):
+                logpath = os.path.join(self.base_path, 'logs')
+                if not os.path.exists(logpath):
+                    os.makedirs(logpath)
+                logfile = os.path.join(logpath, self.name)
+                return logfile
 
-        return logname
+        log = Log(self.base_path)
+        sections = {'LOG': [('level', 'ERROR'), ('name', 'odoo.log')]}
+        for section in sections.keys():
+            if section not in self.sections():
+                self.add_section(section)
+            for data in sections[section]:
+                option = data[0]
+                value = data[1]
+                try:
+                    value = self.get(section, option)
+                except ConfigParser.NoOptionError:
+                    self._write_config(section, option, value)
+                finally:
+                    setattr(log, option, value)
 
-    def get_log_file(self):
-        logpath = os.path.join(self.base_path, 'logs')
-        if not os.path.exists(logpath):
-            os.makedirs(logpath)
-        logfile = os.path.join(logpath, self.get_log_name())
-        return logfile
+        return log

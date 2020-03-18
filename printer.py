@@ -7,9 +7,9 @@ _logger = logging.getLogger(__name__)
 
 class Printer(object):
 
-    def __init__(self, idProduct, idVendor, description):
-        self.idVendor = idVendor
-        self.idProduct = idProduct
+    def __init__(self, product_id, vendor_id, description):
+        self.product_id = product_id
+        self.vendor_id = vendor_id
         self.description = description
 
 
