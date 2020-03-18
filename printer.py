@@ -8,10 +8,13 @@ _logger = logging.getLogger(__name__)
 class Printer(object):
 
     def __init__(self, product_id, vendor_id, description):
-        self.id = '%d@%d' % (product_id, vendor_id)
         self.product_id = product_id
         self.vendor_id = vendor_id
         self.description = description
+
+    @property
+    def id(self):
+        return '%d@%d' % (self.product_id, self.vendor_id)
 
     def __repr__(self):
         return self.description
@@ -82,8 +85,7 @@ class FindPrinters(object):
     # default constructors
     def __init__(self):
         self._current = 0
-        self._printers = [Printer(0, 0, "")]
-        self._printers += self._get_connected_usb_printers()
+        self._printers = self._get_connected_usb_printers()
         self._length = len(self._printers)
 
     def __iter__(self):

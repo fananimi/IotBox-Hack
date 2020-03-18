@@ -3,9 +3,14 @@ import sys
 import logging
 import ConfigParser
 
+from printer import Printer
+
 
 # The Singleton Class to handle state of the application
 class StateManager(ConfigParser.RawConfigParser):
+    LABEL_PRINTER = 0
+    THERMAL_PRINTER = 1
+
     is_frozen = False
     base_path = None
     config_file = None
@@ -156,3 +161,18 @@ class StateManager(ConfigParser.RawConfigParser):
         webservice = WebService()
         sections = {'SERVICE': [('port', int, 8080)]}
         return self._build_config(webservice, sections)
+
+    def get_printer(self, type):
+        if type not in [self.LABEL_PRINTER, self.THERMAL_PRINTER]:
+            return
+        section_name = 'PRINTER_LABEL'
+        if type == self.THERMAL_PRINTER:
+            section_name = 'PRINTER_THERMAL'
+
+        printer = Printer(0, 0, '')
+        sections = {section_name: [
+            ('product_id', int, 0),
+            ('vendor_id', int, 0),
+            ('description', str, '')
+        ]}
+        return self._build_config(printer, sections)

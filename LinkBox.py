@@ -115,17 +115,25 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # *************************** Other function is here *************************** |
     # --------------------------------------------------------------------------------
     def _reload_printers(self):
+        config = StateManager.getInstance()
         self.cmbLabel.clear()
         self.cmbThermal.clear()
-        printers = set([printer for printer in FindPrinters()])
-        for printer in list(printers):
-            _item = QtGui.QStandardItem(printer.description)
-            _item.setData(printer)
-            self.printer_label_model.appendRow(_item)
-        for printer in list(printers):
-            _item = QtGui.QStandardItem(printer.description)
-            _item.setData(printer)
-            self.printer_thermal_model.appendRow(_item)
+        printers = [printer for printer in FindPrinters()]
+
+        def add_to_model(type):
+            _printers = printers
+            _printers.append(config.get_printer(type))
+
+            for printer in list(set(_printers)):
+                _item = QtGui.QStandardItem(printer.description)
+                _item.setData(printer)
+                if type == StateManager.LABEL_PRINTER:
+                    self.printer_label_model.appendRow(_item)
+                if type == StateManager.THERMAL_PRINTER:
+                    self.printer_thermal_model.appendRow(_item)
+
+        add_to_model(StateManager.LABEL_PRINTER)
+        add_to_model(StateManager.THERMAL_PRINTER)
 
 
 def main():
