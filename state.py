@@ -120,6 +120,16 @@ class StateManager(ConfigParser.RawConfigParser):
                 logfile = os.path.join(logpath, self.name)
                 return logfile
 
+            def validate_level(self, value):
+                allowed_values = []
+                for level in logging._levelNames.keys():
+                    if isinstance(level, str):
+                        allowed_values.append(level)
+                if value not in allowed_values:
+                    raise ValueError('level must be %s' % str(allowed_values))
+
+                return value
+
         log = Log(self.base_path)
         sections = {'LOG': [('level', str, 'ERROR'), ('name', str, 'odoo.log')]}
         return self._build_config(log, sections)
@@ -143,6 +153,7 @@ class StateManager(ConfigParser.RawConfigParser):
             def validate_port(self, value):
                 if not 1024 <= value <= 65535:
                     raise ValueError('port must be 1024-65535')
+
                 return value
 
         webservice = WebService()
