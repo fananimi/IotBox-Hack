@@ -47,9 +47,6 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         for key in drivers.keys():
             drivers[key].start()
 
-        # update status
-        self.update_status()
-
         # button signal handlers
         self.btnClose.clicked.connect(self.on_click_button)
         self.btnApply.clicked.connect(self.on_click_button)
@@ -61,15 +58,23 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             printer_item = QtGui.QStandardItem(printer.description)
             printer_item.setData(printer)
             self.printer_model.appendRow(printer_item)
-        self.cmbLabel.setModel(self.printer_model)
-        self.cmbThermal.setModel(self.printer_model)
 
         # combobox signal handlers
         self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
         self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
 
-    def update_status(self):
-        self.txtPort.setText('%d' % StateManager.getInstance().web_service.port)
+        # update status
+        self.update_ui()
+
+    def update_ui(self):
+        ws_port = StateManager.getInstance().web_service.port
+        # set spinbox
+        self.spnPort.setValue(ws_port)
+        # set combobox
+        self.cmbLabel.setModel(self.printer_model)
+        self.cmbThermal.setModel(self.printer_model)
+        # set status
+        self.txtPort.setText('%d' % ws_port)
 
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):
