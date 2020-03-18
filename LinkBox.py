@@ -69,7 +69,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
 
     def update_status(self):
-        self.txtPort.setText('%d' % StateManager.getInstance().get_service_port())
+        self.txtPort.setText('%d' % StateManager.getInstance().web_service.port)
 
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):

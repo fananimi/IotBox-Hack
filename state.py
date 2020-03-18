@@ -1,5 +1,6 @@
 import os
 import sys
+import operator
 import logging
 import ConfigParser
 
@@ -66,23 +67,32 @@ class StateManager(ConfigParser.RawConfigParser):
     def show_dialog(self):
         self.dialog.show()
 
-    def get_service_port(self):
-        serviceport = 8080
-        section_key = 'SERVICE'
-        if section_key not in self.sections():
-            self.add_section(section_key)
-
-        try:
-            serviceport = self.getint(section_key, 'port')
-            if not 1024 <= serviceport <= 65535:
-                serviceport = 8080
-                raise ValueError('port must be 1024-65535')
-        except ConfigParser.NoOptionError:
-            self._write_config(section_key, 'port', serviceport)
-        except ValueError:
-            self._write_config(section_key, 'port', serviceport)
-
-        return serviceport
+    def _build_config(self, instance, sections):
+        for section in sections.keys():
+            if section not in self.sections():
+                self.add_section(section)
+            for data in sections[section]:
+                option = data[0]
+                type = data[1]
+                default_value, value = (data[2], None)
+                is_error = False
+                try:
+                    if type == int:
+                        value = self.getint(section, option)
+                    else:
+                        value = self.get(section, option)
+                    # in case we have validation on class
+                    validation_func = 'validate_%s' % option
+                    if hasattr(instance, validation_func):
+                        func = getattr(instance, validation_func)
+                        # call the function
+                        func(value)
+                except (ConfigParser.NoOptionError, ValueError):
+                    is_error = True
+                    self._write_config(section, option, default_value)
+                finally:
+                    setattr(instance, option, default_value if is_error else value)
+        return instance
 
     @property
     def log(self):
@@ -111,18 +121,30 @@ class StateManager(ConfigParser.RawConfigParser):
                 return logfile
 
         log = Log(self.base_path)
-        sections = {'LOG': [('level', 'ERROR'), ('name', 'odoo.log')]}
-        for section in sections.keys():
-            if section not in self.sections():
-                self.add_section(section)
-            for data in sections[section]:
-                option = data[0]
-                value = data[1]
-                try:
-                    value = self.get(section, option)
-                except ConfigParser.NoOptionError:
-                    self._write_config(section, option, value)
-                finally:
-                    setattr(log, option, value)
+        sections = {'LOG': [('level', str, 'ERROR'), ('name', str, 'odoo.log')]}
+        return self._build_config(log, sections)
 
-        return log
+    @property
+    def web_service(self):
+        '''
+        short-cut of get_web_service function
+        :return: WebService object
+        '''
+        return self.get_web_service()
+
+    def get_web_service(self):
+        '''
+        :return: WebService object
+        '''
+        class WebService:
+            def __init__(self):
+                self.port = None
+
+            def validate_port(self, value):
+                if not 1024 <= value <= 65535:
+                    raise ValueError('port must be 1024-65535')
+                return value
+
+        webservice = WebService()
+        sections = {'SERVICE': [('port', int, 8080)]}
+        return self._build_config(webservice, sections)
