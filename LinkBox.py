@@ -92,9 +92,10 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()
         if cmbID == 'cmbLabel':
-            return
+            pass
         if cmbID == 'cmbThermal':
-            return
+            pass
+        self.changed()
 
     def on_click_button(self):
         btnID = self.sender().objectName()
@@ -102,11 +103,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             self.hide()
             return
         if btnID == 'btnApply':
-            cmbLabelIDx = self.cmbLabel.currentIndex()
-            cmbThermalIDx = self.cmbThermal.currentIndex()
-            selected_label_printer = self.printer_model.item(cmbLabelIDx).data().toPyObject()
-            # selected_thermal_printer = self.printer_model.item(cmbThermalIDx).data().toPyObject()
-            self.state.set_label_printer(selected_label_printer)
+            self._apply_config()
             return
         if btnID == 'btnReload':
             self._reload_printers()
@@ -115,6 +112,21 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # --------------------------------------------------------------------------------
     # *************************** Other function is here *************************** |
     # --------------------------------------------------------------------------------
+    def _apply_config(self):
+        def set_printer(type):
+            printer = None
+            if type == StateManager.LABEL_PRINTER:
+                printer = self.get_combobox_object(self.cmbLabel, self.printer_label_model)
+            if type == StateManager.THERMAL_PRINTER:
+                printer = self.get_combobox_object(self.cmbThermal, self.printer_thermal_model)
+
+            if type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER] and printer:
+                self.state.set_printer(type, printer)
+
+        set_printer(StateManager.LABEL_PRINTER)
+        set_printer(StateManager.THERMAL_PRINTER)
+        self.btnApply.setEnabled(False)
+
     def _reload_printers(self):
         self.cmbLabel.clear()
         self.cmbThermal.clear()
@@ -134,6 +146,31 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
         add_to_model(StateManager.LABEL_PRINTER)
         add_to_model(StateManager.THERMAL_PRINTER)
+
+    def get_combobox_object(self, combobox, model):
+        index = combobox.currentIndex()
+        if index >= 0:
+            return model.item(index).data().toPyObject()
+
+    def changed(self):
+        change_statuses = []
+
+        def compare_printer(type):
+            ui = None
+            config = None
+            if type == StateManager.LABEL_PRINTER:
+                ui = self.get_combobox_object(self.cmbLabel, self.printer_label_model)
+                config = self.state.get_printer(StateManager.LABEL_PRINTER)
+            if type == StateManager.THERMAL_PRINTER:
+                ui = self.get_combobox_object(self.cmbThermal, self.printer_thermal_model)
+                config = self.state.get_printer(StateManager.THERMAL_PRINTER)
+
+            if ui and config:
+                change_statuses.append(ui == config)
+
+        compare_printer(StateManager.LABEL_PRINTER)
+        compare_printer(StateManager.THERMAL_PRINTER)
+        self.btnApply.setEnabled(False in change_statuses)
 
 
 def main():

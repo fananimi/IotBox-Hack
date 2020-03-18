@@ -163,6 +163,10 @@ class StateManager(ConfigParser.RawConfigParser):
         return self._build_config(webservice, sections)
 
     def get_printer(self, type):
+        '''
+        :param type: type of printer. LABEL_PRINTER|THERMAL_PRINTER
+        :return: Printer object
+        '''
         if type not in [self.LABEL_PRINTER, self.THERMAL_PRINTER]:
             return
         section_name = 'PRINTER_LABEL'
@@ -174,5 +178,25 @@ class StateManager(ConfigParser.RawConfigParser):
             ('product_id', int, 0),
             ('vendor_id', int, 0),
             ('description', str, '')
+        ]}
+        return self._build_config(printer, sections)
+
+    def set_printer(self, type, printer):
+        '''
+        :param type: type of printer. LABEL_PRINTER|THERMAL_PRINTER
+        :param printer: Printer object
+        :return: Printer Object
+        '''
+        if type not in [self.LABEL_PRINTER, self.THERMAL_PRINTER]:
+            return
+        section_name = 'PRINTER_LABEL'
+        if type == self.THERMAL_PRINTER:
+            section_name = 'PRINTER_THERMAL'
+        # remove section and then re-create
+        self.remove_section(section_name)
+        sections = {section_name: [
+            ('product_id', int, printer.product_id),
+            ('vendor_id', int, printer.vendor_id),
+            ('description', str, printer.description)
         ]}
         return self._build_config(printer, sections)
