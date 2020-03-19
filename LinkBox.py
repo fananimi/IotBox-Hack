@@ -131,21 +131,19 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.cmbLabel.clear()
         self.cmbThermal.clear()
         printers = [printer for printer in FindPrinters()]
+        for printer_type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER]:
+            _printers = [self.state.get_printer(printer_type)]
+            for printer in printers:
+                if printer not in _printers:
+                    _printers.append(printer)
 
-        def add_to_model(type):
-            _printers = printers
-            _printers.append(self.state.get_printer(type))
-
-            for printer in list(set(_printers)):
+            for printer in _printers:
                 _item = QtGui.QStandardItem(printer.description)
                 _item.setData(printer)
-                if type == StateManager.LABEL_PRINTER:
+                if printer_type == StateManager.LABEL_PRINTER:
                     self.printer_label_model.appendRow(_item)
-                if type == StateManager.THERMAL_PRINTER:
+                if printer_type == StateManager.THERMAL_PRINTER:
                     self.printer_thermal_model.appendRow(_item)
-
-        add_to_model(StateManager.LABEL_PRINTER)
-        add_to_model(StateManager.THERMAL_PRINTER)
 
     def get_combobox_object(self, combobox, model):
         index = combobox.currentIndex()
@@ -155,21 +153,19 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     def changed(self):
         change_statuses = []
 
-        def compare_printer(type):
+        for printer_type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER]:
             ui = None
             config = None
-            if type == StateManager.LABEL_PRINTER:
+            if printer_type == StateManager.LABEL_PRINTER:
                 ui = self.get_combobox_object(self.cmbLabel, self.printer_label_model)
                 config = self.state.get_printer(StateManager.LABEL_PRINTER)
-            if type == StateManager.THERMAL_PRINTER:
+            if printer_type == StateManager.THERMAL_PRINTER:
                 ui = self.get_combobox_object(self.cmbThermal, self.printer_thermal_model)
                 config = self.state.get_printer(StateManager.THERMAL_PRINTER)
 
             if ui and config:
                 change_statuses.append(ui == config)
 
-        compare_printer(StateManager.LABEL_PRINTER)
-        compare_printer(StateManager.THERMAL_PRINTER)
         self.btnApply.setEnabled(False in change_statuses)
 
 
