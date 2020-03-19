@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-
 import time
-import math
-import netifaces
-
 import traceback
 
 try:
@@ -14,7 +10,6 @@ try:
 except ImportError:
     zpl = printer = None
 
-import release
 from odoo.thread import Thread
 from threading import Lock
 from Queue import Queue
@@ -26,7 +21,6 @@ except ImportError:
 
 from odoo import http
 import addons.hw_proxy.controllers.main as hw_proxy
-from odoo.tools.translate import _
 
 from state import StateManager
 from printer import Printer
@@ -112,15 +106,14 @@ class ZPLDriver(Thread):
                     error = False
                     time.sleep(1)
                     continue
-                elif task == 'receipt':
+                elif task == 'label':
                     if timestamp >= time.time() - 1 * 60 * 60:
-                        self.print_receipt_body(printer,data)
-                        printer.cut()
-                elif task == 'xml_receipt':
+                        pass
+                elif task == 'xml_label':
                     if timestamp >= time.time() - 1 * 60 * 60:
-                        printer.receipt(data)
+                        pass
                 elif task == 'printstatus':
-                    self.print_status(printer)
+                    pass
                 elif task == 'status':
                     pass
                 error = False
@@ -148,174 +141,19 @@ class ZPLDriver(Thread):
         self.lockedstart()
         self.queue.put((time.time(),task,data))
 
-    # def print_status(self,eprint):
-    #     eprint.text('\n')
-    #     eprint.set(align='center',type='b',height=2,width=2)
-    #     eprint.text('LinkBox Status\n')
-    #     eprint.set(align='center')
-    #     eprint.text("VERSION: %s\n" % release.version)
-    #     eprint.text('________________________________\n')
-    #     eprint.text('\n')
-    #
-    #     ips = []
-    #     for x in netifaces.interfaces():
-    #         try:
-    #             ips.append(netifaces.ifaddresses(x)[netifaces.AF_INET][0]['addr'])
-    #         except TypeError:
-    #             pass
-    #         except KeyError:
-    #             pass
-    #
-    #     if not ips:
-    #         eprint.set(align='center')
-    #         eprint.text('ERROR: Could not connect to LAN.\n')
-    #         eprint.text('\n')
-    #         eprint.set(align='left')
-    #         eprint.text('Please check that the LinkBox is\n')
-    #         eprint.text('correctly connected  with a net-\n')
-    #         eprint.text('work cable, that the LAN is set-\n')
-    #         eprint.text('up  with  DHCP,  and  that  net-\n')
-    #         eprint.text('work addresses are available.\n')
-    #     else:
-    #         eprint.set(align='center', font='b', type='u')
-    #         eprint.text('Homepage Addresses:\n\n')
-    #         eprint.set(align='center')
-    #         for ip in ips:
-    #             homepage = 'http://%s:8080\n' % ip
-    #             eprint.text(homepage)
-    #
-    #     eprint.text('\n')
-    #     eprint.cut()
+    def print_status(self, printer):
+        pass
 
-    # def print_receipt_body(self,eprint,receipt):
-    #
-    #     def check(string):
-    #         return string != True and bool(string) and string.strip()
-    #
-    #     def price(amount):
-    #         return ("{0:."+str(receipt['precision']['price'])+"f}").format(amount)
-    #
-    #     def money(amount):
-    #         return ("{0:."+str(receipt['precision']['money'])+"f}").format(amount)
-    #
-    #     def quantity(amount):
-    #         if math.floor(amount) != amount:
-    #             return ("{0:."+str(receipt['precision']['quantity'])+"f}").format(amount)
-    #         else:
-    #             return str(amount)
-    #
-    #     def printline(left, right='', width=40, ratio=0.5, indent=0):
-    #         lwidth = int(width * ratio)
-    #         rwidth = width - lwidth
-    #         lwidth = lwidth - indent
-    #
-    #         left = left[:lwidth]
-    #         if len(left) != lwidth:
-    #             left = left + ' ' * (lwidth - len(left))
-    #
-    #         right = right[-rwidth:]
-    #         if len(right) != rwidth:
-    #             right = ' ' * (rwidth - len(right)) + right
-    #
-    #         return ' ' * indent + left + right + '\n'
-    #
-    #     def print_taxes():
-    #         taxes = receipt['tax_details']
-    #         for tax in taxes:
-    #             eprint.text(printline(tax['tax']['name'],price(tax['amount']), width=40,ratio=0.6))
-    #
-    #     # Receipt Header
-    #     if receipt['company']['logo']:
-    #         eprint.set(align='center')
-    #         eprint.print_base64_image(receipt['company']['logo'])
-    #         eprint.text('\n')
-    #     else:
-    #         eprint.set(align='center',type='b',height=2,width=2)
-    #         eprint.text(receipt['company']['name'] + '\n')
-    #
-    #     eprint.set(align='center',type='b')
-    #     if check(receipt['company']['contact_address']):
-    #         eprint.text(receipt['company']['contact_address'] + '\n')
-    #     if check(receipt['company']['phone']):
-    #         eprint.text('Tel:' + receipt['company']['phone'] + '\n')
-    #     if check(receipt['company']['vat']):
-    #         eprint.text('VAT:' + receipt['company']['vat'] + '\n')
-    #     if check(receipt['company']['email']):
-    #         eprint.text(receipt['company']['email'] + '\n')
-    #     if check(receipt['company']['website']):
-    #         eprint.text(receipt['company']['website'] + '\n')
-    #     if check(receipt['header']):
-    #         eprint.text(receipt['header']+'\n')
-    #     if check(receipt['cashier']):
-    #         eprint.text('-'*32+'\n')
-    #         eprint.text('Served by '+receipt['cashier']+'\n')
-    #
-    #     # Orderlines
-    #     eprint.text('\n\n')
-    #     eprint.set(align='center')
-    #     for line in receipt['orderlines']:
-    #         pricestr = price(line['price_display'])
-    #         if line['discount'] == 0 and line['unit_name'] == 'Unit(s)' and line['quantity'] == 1:
-    #             eprint.text(printline(line['product_name'],pricestr,ratio=0.6))
-    #         else:
-    #             eprint.text(printline(line['product_name'],ratio=0.6))
-    #             if line['discount'] != 0:
-    #                 eprint.text(printline('Discount: '+str(line['discount'])+'%', ratio=0.6, indent=2))
-    #             if line['unit_name'] == 'Unit(s)':
-    #                 eprint.text( printline( quantity(line['quantity']) + ' x ' + price(line['price']), pricestr, ratio=0.6, indent=2))
-    #             else:
-    #                 eprint.text( printline( quantity(line['quantity']) + line['unit_name'] + ' x ' + price(line['price']), pricestr, ratio=0.6, indent=2))
-    #
-    #     # Subtotal if the taxes are not included
-    #     taxincluded = True
-    #     if money(receipt['subtotal']) != money(receipt['total_with_tax']):
-    #         eprint.text(printline('','-------'));
-    #         eprint.text(printline(_('Subtotal'),money(receipt['subtotal']),width=40, ratio=0.6))
-    #         print_taxes()
-    #         #eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
-    #         taxincluded = False
-    #
-    #
-    #     # Total
-    #     eprint.text(printline('','-------'));
-    #     eprint.set(align='center',height=2)
-    #     eprint.text(printline(_('         TOTAL'),money(receipt['total_with_tax']),width=40, ratio=0.6))
-    #     eprint.text('\n\n');
-    #
-    #     # Paymentlines
-    #     eprint.set(align='center')
-    #     for line in receipt['paymentlines']:
-    #         eprint.text(printline(line['journal'], money(line['amount']), ratio=0.6))
-    #
-    #     eprint.text('\n');
-    #     eprint.set(align='center',height=2)
-    #     eprint.text(printline(_('        CHANGE'),money(receipt['change']),width=40, ratio=0.6))
-    #     eprint.set(align='center')
-    #     eprint.text('\n');
-    #
-    #     # Extra Payment info
-    #     if receipt['total_discount'] != 0:
-    #         eprint.text(printline(_('Discounts'),money(receipt['total_discount']),width=40, ratio=0.6))
-    #     if taxincluded:
-    #         print_taxes()
-    #         #eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
-    #
-    #     # Footer
-    #     if check(receipt['footer']):
-    #         eprint.text('\n'+receipt['footer']+'\n\n')
-    #     eprint.text(receipt['name']+'\n')
-    #     eprint.text(      str(receipt['date']['date']).zfill(2)
-    #                 +'/'+ str(receipt['date']['month']+1).zfill(2)
-    #                 +'/'+ str(receipt['date']['year']).zfill(4)
-    #                 +' '+ str(receipt['date']['hour']).zfill(2)
-    #                 +':'+ str(receipt['date']['minute']).zfill(2) )
+    def print_label(self,eprint,receipt):
+        pass
+
+    def print_label_xml(self,eprint,receipt):
+        pass
 
 
 driver = ZPLDriver()
-
 driver.push_task('status')
-# driver.push_task('printstatus')
-
+driver.push_task('printstatus')
 hw_proxy.drivers['zpl'] = driver
 
 
