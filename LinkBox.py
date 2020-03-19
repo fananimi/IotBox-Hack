@@ -134,7 +134,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             _printers = []
             if printer_type == StateManager.ZPL_PRINTER:
                 _printers.append(self.state.printer_zpl)
-            if StateManager.ESCPOS_PRINTER:
+            if printer_type == StateManager.ESCPOS_PRINTER:
                 _printers.append(self.state.printer_escpos)
 
             for printer in printers:
