@@ -83,7 +83,7 @@ class StateManager(ConfigParser.RawConfigParser):
                         value = self.getint(section, option)
                     else:
                         value = self.get(section, option)
-                    # in case we have validation on class
+                    # in case we have validate_* function on class
                     validation_func = 'validate_%s' % option
                     if hasattr(instance, validation_func):
                         func = getattr(instance, validation_func)
