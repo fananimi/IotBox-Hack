@@ -11,7 +11,7 @@ from static.images import xpm
 from ui.main import Ui_Dialog
 
 from state import StateManager
-from printer import FindPrinters
+from devices import FindPrinters
 
 
 def setup_log():

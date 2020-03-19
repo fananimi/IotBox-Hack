@@ -29,7 +29,7 @@ import addons.hw_proxy.controllers.main as hw_proxy
 from odoo.tools.translate import _
 
 from state import StateManager
-from printer import Printer
+from devices import Printer
 
 _logger = logging.getLogger(__name__)
 

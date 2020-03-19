@@ -3,7 +3,7 @@ import sys
 import logging
 import ConfigParser
 
-from printer import Printer
+from devices import Printer
 
 
 # The Singleton Class to handle state of the application
