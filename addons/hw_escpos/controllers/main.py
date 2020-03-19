@@ -71,7 +71,6 @@ class EscposDriver(Thread):
         return None
 
     def get_status(self):
-        self.push_task('status')
         return self.status
 
     def open_cashbox(self,printer):
@@ -115,7 +114,7 @@ class EscposDriver(Thread):
                     if task != 'status':
                         self.queue.put((timestamp,task,data))
                     error = False
-                    time.sleep(5)
+                    time.sleep(1)
                     continue
                 elif task == 'receipt':
                     if timestamp >= time.time() - 1 * 60 * 60:
@@ -150,6 +149,7 @@ class EscposDriver(Thread):
                     self.queue.put((timestamp, task, data))
                 if printer:
                     printer.close()
+                self.push_task('status')
 
     def push_task(self,task, data = None):
         self.lockedstart()
@@ -320,6 +320,7 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 
+driver.push_task('status')
 driver.push_task('printstatus')
 
 hw_proxy.drivers['escpos'] = driver
