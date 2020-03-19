@@ -44,8 +44,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self._register_signal()
 
         # attribute registration
-        self.printer_label_model = QtGui.QStandardItemModel()
-        self.printer_thermal_model = QtGui.QStandardItemModel()
+        self.printer_zpl_model = QtGui.QStandardItemModel()
+        self.printer_escpos_model = QtGui.QStandardItemModel()
 
         # update status
         self._init_ui()
@@ -58,8 +58,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # set spinbox
         self.spnPort.setValue(ws_port)
         # set combobox
-        self.cmbLabel.setModel(self.printer_label_model)
-        self.cmbThermal.setModel(self.printer_thermal_model)
+        self.cmbZPL.setModel(self.printer_zpl_model)
+        self.cmbESCPOS.setModel(self.printer_escpos_model)
         # set status
         self.txtPort.setText('%d' % ws_port)
         # trigger printers
@@ -82,8 +82,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnClose.clicked.connect(self.on_click_button)
         self.btnApply.clicked.connect(self.on_click_button)
         self.btnReload.clicked.connect(self.on_click_button)
-        self.cmbLabel.currentIndexChanged[int].connect(self.on_combobox_index_changed)
-        self.cmbThermal.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.cmbZPL.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.cmbESCPOS.currentIndexChanged[int].connect(self.on_combobox_index_changed)
 
     # --------------------------------------------------------------------------------
     # ******************** Callback function for signals is here ********************|
@@ -91,9 +91,9 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()
-        if cmbID == 'cmbLabel':
+        if cmbID == 'cmbESCPOS':
             pass
-        if cmbID == 'cmbThermal':
+        if cmbID == 'cmbZPL':
             pass
         self.changed()
 
@@ -113,25 +113,24 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # *************************** Other function is here *************************** |
     # --------------------------------------------------------------------------------
     def _apply_config(self):
-        def set_printer(type):
+        for printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER]:
             printer = None
-            if type == StateManager.LABEL_PRINTER:
-                printer = self.get_combobox_object(self.cmbLabel, self.printer_label_model)
-            if type == StateManager.THERMAL_PRINTER:
-                printer = self.get_combobox_object(self.cmbThermal, self.printer_thermal_model)
+            if printer_type == StateManager.ZPL_PRINTER:
+                printer = self.get_combobox_object(self.cmbZPL, self.printer_zpl_model)
+            if printer_type == StateManager.ESCPOS_PRINTER:
+                printer = self.get_combobox_object(self.cmbESCPOS, self.printer_escpos_model)
 
-            if type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER] and printer:
-                self.state.set_printer(type, printer)
+            if printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER] and printer:
+                self.state.set_printer(printer_type, printer)
 
-        set_printer(StateManager.LABEL_PRINTER)
-        set_printer(StateManager.THERMAL_PRINTER)
         self.btnApply.setEnabled(False)
+        self._reload_printers()
 
     def _reload_printers(self):
-        self.cmbLabel.clear()
-        self.cmbThermal.clear()
+        self.cmbZPL.clear()
+        self.cmbESCPOS.clear()
         printers = [printer for printer in FindPrinters()]
-        for printer_type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER]:
+        for printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER]:
             _printers = [self.state.get_printer(printer_type)]
             for printer in printers:
                 if printer not in _printers:
@@ -140,10 +139,10 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             for printer in _printers:
                 _item = QtGui.QStandardItem(printer.description)
                 _item.setData(printer)
-                if printer_type == StateManager.LABEL_PRINTER:
-                    self.printer_label_model.appendRow(_item)
-                if printer_type == StateManager.THERMAL_PRINTER:
-                    self.printer_thermal_model.appendRow(_item)
+                if printer_type == StateManager.ZPL_PRINTER:
+                    self.printer_zpl_model.appendRow(_item)
+                if printer_type == StateManager.ESCPOS_PRINTER:
+                    self.printer_escpos_model.appendRow(_item)
 
     def get_combobox_object(self, combobox, model):
         index = combobox.currentIndex()
@@ -153,15 +152,15 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     def changed(self):
         change_statuses = []
 
-        for printer_type in [StateManager.LABEL_PRINTER, StateManager.THERMAL_PRINTER]:
+        for printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER]:
             ui = None
             config = None
-            if printer_type == StateManager.LABEL_PRINTER:
-                ui = self.get_combobox_object(self.cmbLabel, self.printer_label_model)
-                config = self.state.get_printer(StateManager.LABEL_PRINTER)
-            if printer_type == StateManager.THERMAL_PRINTER:
-                ui = self.get_combobox_object(self.cmbThermal, self.printer_thermal_model)
-                config = self.state.get_printer(StateManager.THERMAL_PRINTER)
+            if printer_type == StateManager.ZPL_PRINTER:
+                ui = self.get_combobox_object(self.cmbZPL, self.printer_zpl_model)
+                config = self.state.get_printer(StateManager.ZPL_PRINTER)
+            if printer_type == StateManager.ESCPOS_PRINTER:
+                ui = self.get_combobox_object(self.cmbESCPOS, self.printer_escpos_model)
+                config = self.state.get_printer(StateManager.ESCPOS_PRINTER)
 
             if ui and config:
                 change_statuses.append(ui == config)

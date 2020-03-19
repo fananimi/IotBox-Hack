@@ -47,7 +47,7 @@
             </size>
            </property>
            <property name="text">
-            <string>Label</string>
+            <string>ZPL</string>
            </property>
           </widget>
          </item>
@@ -60,12 +60,12 @@
             </size>
            </property>
            <property name="text">
-            <string>Thermal</string>
+            <string>ESC/POS</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="cmbThermal">
+          <widget class="QComboBox" name="cmbESCPOS">
            <property name="minimumSize">
             <size>
              <width>250</width>
@@ -75,7 +75,7 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QComboBox" name="cmbLabel">
+          <widget class="QComboBox" name="cmbZPL">
            <property name="minimumSize">
             <size>
              <width>250</width>
@@ -177,14 +177,14 @@ QGroupBox::title {
          <item row="1" column="0">
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Printer Label</string>
+            <string>ZPL Printer</string>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
-            <string>Printer Thermal</string>
+            <string>ESCPOS Printer</string>
            </property>
           </widget>
          </item>
@@ -196,14 +196,14 @@ QGroupBox::title {
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QLabel" name="txtPrinterLabel">
+          <widget class="QLabel" name="txtPrinterZPL">
            <property name="text">
             <string>Disconnected</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QLabel" name="txtPrinterThermal">
+          <widget class="QLabel" name="txtPrinterESCPOS">
            <property name="text">
             <string>Disconnected</string>
            </property>

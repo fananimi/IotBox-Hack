@@ -8,8 +8,8 @@ from printer import Printer
 
 # The Singleton Class to handle state of the application
 class StateManager(ConfigParser.RawConfigParser):
-    LABEL_PRINTER = 0
-    THERMAL_PRINTER = 1
+    ZPL_PRINTER = 0
+    ESCPOS_PRINTER = 1
 
     is_frozen = False
     base_path = None
@@ -164,14 +164,14 @@ class StateManager(ConfigParser.RawConfigParser):
 
     def get_printer(self, type):
         '''
-        :param type: type of printer. LABEL_PRINTER|THERMAL_PRINTER
+        :param type: type of printer. ZPL_PRINTER|ESCPOS_PRINTER
         :return: Printer object
         '''
-        if type not in [self.LABEL_PRINTER, self.THERMAL_PRINTER]:
+        if type not in [self.ZPL_PRINTER, self.ESCPOS_PRINTER]:
             return
-        section_name = 'PRINTER_LABEL'
-        if type == self.THERMAL_PRINTER:
-            section_name = 'PRINTER_THERMAL'
+        section_name = 'PRINTER_ZPL'
+        if type == self.ESCPOS_PRINTER:
+            section_name = 'PRINTER_ESCPOS'
 
         printer = Printer(0, 0, '')
         sections = {section_name: [
@@ -183,15 +183,15 @@ class StateManager(ConfigParser.RawConfigParser):
 
     def set_printer(self, type, printer):
         '''
-        :param type: type of printer. LABEL_PRINTER|THERMAL_PRINTER
+        :param type: type of printer. ZPL_PRINTER|ESCPOS_PRINTER
         :param printer: Printer object
         :return: Printer Object
         '''
-        if type not in [self.LABEL_PRINTER, self.THERMAL_PRINTER]:
+        if type not in [self.ZPL_PRINTER, self.ESCPOS_PRINTER]:
             return
-        section_name = 'PRINTER_LABEL'
-        if type == self.THERMAL_PRINTER:
-            section_name = 'PRINTER_THERMAL'
+        section_name = 'PRINTER_ZPL'
+        if type == self.ESCPOS_PRINTER:
+            section_name = 'PRINTER_ESCPOS'
         # remove section and then re-create
         self.remove_section(section_name)
         sections = {section_name: [

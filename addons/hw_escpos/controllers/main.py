@@ -53,7 +53,7 @@ class EscposDriver(Thread):
 
     def get_escpos_printer(self):
         state = StateManager.getInstance()
-        printer = state.get_printer(StateManager.THERMAL_PRINTER)
+        printer = state.get_printer(StateManager.ESCPOS_PRINTER)
         try:
             printer_device = Usb(printer.vendor_id, printer.product_id)
             self.set_status(
