@@ -17,6 +17,9 @@ class StateManager(ConfigParser.RawConfigParser):
     dialog = None
     __instance = None
 
+    __printer_zpl = None
+    __printer_escpos = None
+
     @staticmethod
     def getInstance():
         """ Static access method. """
@@ -162,7 +165,19 @@ class StateManager(ConfigParser.RawConfigParser):
         sections = {'SERVICE': [('port', int, 8080)]}
         return self._build_config(webservice, sections)
 
-    def get_printer(self, type):
+    @property
+    def printer_zlp(self):
+        if not self.__printer_zpl:
+            self.__printer_zpl = self.__get_printer(StateManager.ZPL_PRINTER)
+        return self.__printer_zpl
+
+    @property
+    def printer_escpos(self):
+        if not self.__printer_escpos:
+            self.__printer_escpos = self.__get_printer(StateManager.ESCPOS_PRINTER)
+        return self.__printer_escpos
+
+    def __get_printer(self, type):
         '''
         :param type: type of printer. ZPL_PRINTER|ESCPOS_PRINTER
         :return: Printer object
@@ -180,6 +195,12 @@ class StateManager(ConfigParser.RawConfigParser):
             ('description', str, '')
         ]}
         return self._build_config(printer, sections)
+
+    def get_printer(self, type):
+        if type == StateManager.ZPL_PRINTER:
+            return self.printer_zlp
+        if type == StateManager.ESCPOS_PRINTER:
+            return self.printer_escpos
 
     def set_printer(self, type, printer):
         '''
@@ -199,4 +220,8 @@ class StateManager(ConfigParser.RawConfigParser):
             ('vendor_id', int, printer.vendor_id),
             ('description', str, printer.description)
         ]}
-        return self._build_config(printer, sections)
+        self._build_config(printer, sections)
+        if type == StateManager.ZPL_PRINTER:
+            self.__printer_zpl = printer
+        if type == StateManager.ESCPOS_PRINTER:
+            self.__printer_escpos = printer
