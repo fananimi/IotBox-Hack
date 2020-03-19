@@ -1,3 +1,4 @@
+import re
 import time
 import logging
 from odoo import http
@@ -31,7 +32,7 @@ class Proxy(http.Controller):
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>Odoo's PosBox</title>
+        <title>LinkBox</title>
         <style>
             body {
                 width: 480px;
@@ -47,7 +48,7 @@ class Proxy(http.Controller):
         <p>The list of enabled drivers and their status</p>
 """
         statuses = self.get_status()
-        for driver in statuses:
+        for driver in statuses.keys():
             status = statuses[driver]
 
             if status['status'] == 'connecting':
@@ -61,11 +62,14 @@ class Proxy(http.Controller):
             resp += "<ul>\n"
             for msg in status['messages']:
                 resp += '<li>'+msg+'</li>\n'
+            resp += "</ul>"
 
         resp += """
-    <body>
+    </body>
 </html>
 """
+
+        resp = re.sub('\s+',' ', resp).strip()
         return resp
 
     @http.route('/hw_proxy/status_json', type='json', auth='none', cors='*')
