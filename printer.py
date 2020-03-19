@@ -6,11 +6,20 @@ _logger = logging.getLogger(__name__)
 
 
 class Printer(object):
+    STATUS_DISCONNECTED = 0
+    STATUS_CONNECTED = 1
 
     def __init__(self, product_id, vendor_id, description):
         self.product_id = product_id
         self.vendor_id = vendor_id
         self.description = description
+        self.status = Printer.STATUS_DISCONNECTED
+
+    def get_status_display(self):
+        if self.status == Printer.STATUS_DISCONNECTED:
+            return 'Disconnected'
+        if self.status == Printer.STATUS_CONNECTED:
+            return 'Connected'
 
     @property
     def id(self):

@@ -29,6 +29,7 @@ import addons.hw_proxy.controllers.main as hw_proxy
 from odoo.tools.translate import _
 
 from state import StateManager
+from printer import Printer
 
 _logger = logging.getLogger(__name__)
 
@@ -61,8 +62,10 @@ class EscposDriver(Thread):
                                                             printer_device.in_ep,
                                                             printer_device.out_ep)
             )
+            printer.status = Printer.STATUS_CONNECTED
             return printer_device
         except NoDeviceError:
+            printer.status = Printer.STATUS_DISCONNECTED
             self.set_status('disconnected','Printer Not Found')
 
         return None
