@@ -19,6 +19,7 @@ class StateManager(ConfigParser.RawConfigParser):
 
     __printer_zpl = None
     __printer_escpos = None
+    __web_service = None
 
     @staticmethod
     def getInstance():
@@ -145,9 +146,11 @@ class StateManager(ConfigParser.RawConfigParser):
         short-cut of get_web_service function
         :return: WebService object
         '''
-        return self.get_web_service()
+        if not self.__web_service:
+            self.__web_service = self.__get_web_service()
+        return self.__web_service
 
-    def get_web_service(self):
+    def __get_web_service(self):
         '''
         :return: WebService object
         '''
@@ -166,7 +169,7 @@ class StateManager(ConfigParser.RawConfigParser):
         return self._build_config(webservice, sections)
 
     @property
-    def printer_zlp(self):
+    def printer_zpl(self):
         if not self.__printer_zpl:
             self.__printer_zpl = self.__get_printer(StateManager.ZPL_PRINTER)
         return self.__printer_zpl
@@ -195,12 +198,6 @@ class StateManager(ConfigParser.RawConfigParser):
             ('description', str, '')
         ]}
         return self._build_config(printer, sections)
-
-    def get_printer(self, type):
-        if type == StateManager.ZPL_PRINTER:
-            return self.printer_zlp
-        if type == StateManager.ESCPOS_PRINTER:
-            return self.printer_escpos
 
     def set_printer(self, type, printer):
         '''

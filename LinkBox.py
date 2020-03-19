@@ -131,7 +131,12 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.cmbESCPOS.clear()
         printers = [printer for printer in FindPrinters()]
         for printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER]:
-            _printers = [self.state.get_printer(printer_type)]
+            _printers = []
+            if printer_type == StateManager.ZPL_PRINTER:
+                _printers.append(self.state.printer_zpl)
+            if StateManager.ESCPOS_PRINTER:
+                _printers.append(self.state.printer_escpos)
+
             for printer in printers:
                 if printer not in _printers:
                     _printers.append(printer)
@@ -157,10 +162,10 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             config = None
             if printer_type == StateManager.ZPL_PRINTER:
                 ui = self.get_combobox_object(self.cmbZPL, self.printer_zpl_model)
-                config = self.state.get_printer(StateManager.ZPL_PRINTER)
+                config = self.state.printer_zpl
             if printer_type == StateManager.ESCPOS_PRINTER:
                 ui = self.get_combobox_object(self.cmbESCPOS, self.printer_escpos_model)
-                config = self.state.get_printer(StateManager.ESCPOS_PRINTER)
+                config = self.state.printer_escpos
 
             if ui and config:
                 change_statuses.append(ui == config)
