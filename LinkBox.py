@@ -5,7 +5,7 @@ import logging
 from PyQt4 import QtCore, QtGui
 
 from addons.hw_proxy.controllers.main import drivers
-from odoo.thread import WebThread
+from odoo.thread import WebThread, StatusMonitorThread
 from odoo.ui import SystemTrayIcon
 from static.images import xpm
 from ui.main import Ui_Dialog
@@ -54,16 +54,25 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     # ********************* All functions shown to user is here *********************|
     # --------------------------------------------------------------------------------
     def _init_ui(self):
-        ws_port = self.state.web_service.port
         # set spinbox
-        self.spnPort.setValue(ws_port)
+        self.spnPort.setValue(self.state.web_service.port)
         # set combobox
         self.cmbZPL.setModel(self.printer_zpl_model)
         self.cmbESCPOS.setModel(self.printer_escpos_model)
-        # set status
-        self.txtPort.setText('%d' % ws_port)
         # trigger printers
         self._reload_printers()
+
+    def update_status(self):
+        # web_service
+        self.txtPort.setText('%d' % self.state.web_service.port)
+        # ZPL
+        self.txtPrinterZPL.setText(self.state.printer_zpl.get_status_display())
+        colorZPL = 'green' if self.state.printer_zpl.status else 'red'
+        self.txtPrinterZPL.setStyleSheet('color: %s' % colorZPL)
+        # ESCPOS
+        self.txtPrinterESCPOS.setText(self.state.printer_escpos.get_status_display())
+        colorESCPOS = 'green' if self.state.printer_escpos.status else 'red'
+        self.txtPrinterESCPOS.setStyleSheet('color: %s' % colorESCPOS)
 
     # --------------------------------------------------------------------------------
     # ****************** All threads must register on this section ******************|
@@ -71,6 +80,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     def _register_thread(self):
         self.web_thread = WebThread()
         self.web_thread.start()
+        self.status_monitor_thread = StatusMonitorThread()
+        self.status_monitor_thread.start()
         # run all driver
         for key in drivers.keys():
             drivers[key].start()
@@ -84,6 +95,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnReload.clicked.connect(self.on_click_button)
         self.cmbZPL.currentIndexChanged[int].connect(self.on_combobox_index_changed)
         self.cmbESCPOS.currentIndexChanged[int].connect(self.on_combobox_index_changed)
+        self.connect(self.status_monitor_thread, QtCore.SIGNAL("update_status()"), self.update_status)
 
     # --------------------------------------------------------------------------------
     # ******************** Callback function for signals is here ********************|

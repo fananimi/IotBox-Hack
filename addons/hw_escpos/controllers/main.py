@@ -101,8 +101,8 @@ class EscposDriver(Thread):
             _logger.error('ESC/POS cannot initialize, please verify system dependencies.')
             return
         while True:
+            error = True
             try:
-                error = True
                 timestamp, task, data = self.queue.get(True)
 
                 printer = None
