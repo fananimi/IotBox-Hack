@@ -320,13 +320,13 @@ hw_proxy.drivers['zpl'] = driver
 
 
 class ZplProxy(hw_proxy.Proxy):
-    pass
-    # @http.route('/hw_proxy/print_receipt', type='json', auth='none', cors='*')
-    # def print_receipt(self, receipt):
-    #     _logger.info('ESC/POS: PRINT RECEIPT')
-    #     driver.push_task('receipt',receipt)
 
-    # @http.route('/hw_proxy/print_xml_receipt', type='json', auth='none', cors='*')
-    # def print_xml_receipt(self, receipt):
-    #     _logger.info('ESC/POS: PRINT XML RECEIPT')
-    #     driver.push_task('xml_receipt',receipt)
+    @http.route('/hw_proxy/print_label', type='json', auth='none', cors='*')
+    def print_receipt(self, receipt):
+        _logger.info('ZPL: PRINT LABEL')
+        driver.push_task('label',receipt)
+
+    @http.route('/hw_proxy/print_xml_label', type='json', auth='none', cors='*')
+    def print_xml_receipt(self, receipt):
+        _logger.info('ZPL: PRINT XML LABEL')
+        driver.push_task('xml_label',receipt)
