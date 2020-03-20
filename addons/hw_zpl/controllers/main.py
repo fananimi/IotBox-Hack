@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
-import logging
 import time
+import logging
 import traceback
+import addons.hw_proxy.controllers.main as hw_proxy
 
-try:
-    from .. zpl import *
-    from .. zpl.exceptions import *
-    from .. zpl.printer import Usb
-except ImportError:
-    zpl = printer = None
-
-from odoo.thread import Thread
 from threading import Lock
 from Queue import Queue
 
@@ -19,17 +12,21 @@ try:
 except ImportError:
     usb = None
 
-from odoo import http
-import addons.hw_proxy.controllers.main as hw_proxy
-
-from state import StateManager
 from devices import Printer
+from devices.printer.exceptions import (NoDeviceError, NoStatusError,
+                                        TicketNotPrinted, HandleDeviceError)
+from odoo import http
+from odoo.thread import Thread
+from state import StateManager
+
+from ..zpl.printer import Usb
 
 _logger = logging.getLogger(__name__)
 
 # workaround https://bugs.launchpad.net/openobject-server/+bug/947231
 # related to http://bugs.python.org/issue7980
 from datetime import datetime
+
 datetime.strptime('2012-01-01', '%Y-%m-%d')
 
 
@@ -37,8 +34,9 @@ class ZPLDriver(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.queue = Queue()
-        self.lock  = Lock()
-        self.status = {'status':'connecting', 'messages':[]}
+        self.lock = Lock()
+        self.status = {'status': 'connecting', 'messages': []}
+        self.current_printer_status = Printer.STATUS_DISCONNECTED
 
     def lockedstart(self):
         with self.lock:
@@ -48,27 +46,37 @@ class ZPLDriver(Thread):
 
     def get_zpl_printer(self):
         printer = StateManager.getInstance().printer_zpl
+        printer_device = None
         try:
             printer_device = Usb(printer.vendor_id, printer.product_id)
-            self.set_status(
-                'connected',
-                "Connected to %s (in=0x%02x,out=0x%02x)" % (printer.description,
-                                                            printer_device.in_ep,
-                                                            printer_device.out_ep)
-            )
             printer.status = Printer.STATUS_CONNECTED
             return printer_device
         except NoDeviceError:
             printer.status = Printer.STATUS_DISCONNECTED
-            self.set_status('disconnected','Printer Not Found')
+        finally:
+            if printer.status != self.current_printer_status:
+                self.current_printer_status = printer.status
+                if printer_device:
+                    self.set_status(
+                        'connected',
+                        "Connected to %s (in=0x%02x,out=0x%02x)" % (printer.description,
+                                                                    printer_device.in_ep,
+                                                                    printer_device.out_ep)
+                    )
+                else:
+                    self.set_status('disconnected', 'Printer Not Found')
 
-        return None
+        return printer_device
 
     def get_status(self):
         return self.status
 
-    def set_status(self, status, message = None):
-        _logger.info(status+' : '+ (message or 'no message'))
+    def open_cashbox(self, printer):
+        printer.cashdraw(2)
+        printer.cashdraw(5)
+
+    def set_status(self, status, message=None):
+        _logger.info(status + ' : ' + (message or 'no message'))
         if status == self.status['status']:
             if message != None and (len(self.status['messages']) == 0 or message != self.status['messages'][-1]):
                 self.status['messages'].append(message)
@@ -80,74 +88,72 @@ class ZPLDriver(Thread):
                 self.status['messages'] = []
 
         if status == 'error' and message:
-            _logger.error('ZPL Error: '+message)
+            _logger.error('ZPL Error: ' + message)
         elif status == 'disconnected' and message:
-            _logger.warning('ZPL Device Disconnected: '+message)
+            _logger.warning('ZPL Device Disconnected: ' + message)
 
     def run(self):
-        printer = None
-        if not zpl:
-            _logger.error('ZPL cannot initialize, please verify system dependencies.')
-            return
         while True:
-            error = True
+            printer = None
+            error = False
             try:
                 timestamp, task, data = self.queue.get(True)
 
-                printer = None
                 try:
                     printer = self.get_zpl_printer()
                 except Exception as e:
                     _logger.error(e)
 
-                if printer == None:
-                    if task != 'status':
-                        self.queue.put((timestamp,task,data))
-                    error = False
-                    time.sleep(1)
-                    continue
-                elif task == 'label':
-                    if timestamp >= time.time() - 1 * 60 * 60:
-                        pass
-                elif task == 'xml_label':
-                    if timestamp >= time.time() - 1 * 60 * 60:
-                        pass
-                elif task == 'printstatus':
-                    pass
-                elif task == 'status':
-                    pass
-                error = False
+                if printer:
+                    if task == 'status':
+                        # nothing todo
+                        continue
 
+                    # specific done bellow
+                    if task == 'label':
+                        if timestamp >= time.time() - 1 * 60 * 60:
+                            pass
+                    elif task == 'xml_label':
+                        if timestamp >= time.time() - 1 * 60 * 60:
+                            pass
+                    elif task == 'printstatus':
+                        self.print_status(printer)
+                else:
+                    if task != 'status':
+                        # re-add job if exists
+                        self.queue.put((timestamp, task, data))
             except NoDeviceError as e:
-                print "No device found %s" %str(e)
+                error = True
+                print "No device found %s" % str(e)
             except HandleDeviceError as e:
+                error = True
                 print "Impossible to handle the device due to previous error %s" % str(e)
             except TicketNotPrinted as e:
+                error = True
                 print "The ticket does not seems to have been fully printed %s" % str(e)
             except NoStatusError as e:
+                error = True
                 print "Impossible to get the status of the printer %s" % str(e)
             except Exception as e:
+                error = True
                 self.set_status('error', str(e))
-                errmsg = str(e) + '\n' + '-'*60+'\n' + traceback.format_exc() + '-'*60 + '\n'
+                errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
                 _logger.error(errmsg);
             finally:
                 if error:
                     self.queue.put((timestamp, task, data))
                 if printer:
                     printer.close()
+                # check status after complete
                 self.push_task('status')
+                time.sleep(0.25)
 
-    def push_task(self,task, data = None):
+    def push_task(self, task, data=None):
         self.lockedstart()
-        self.queue.put((time.time(),task,data))
+        self.queue.put((time.time(), task, data))
 
-    def print_status(self, printer):
-        pass
-
-    def print_label(self,eprint,receipt):
-        pass
-
-    def print_label_xml(self,eprint,receipt):
+    def print_status(self, eprint):
+        print "print status"
         pass
 
 
@@ -157,14 +163,14 @@ driver.push_task('printstatus')
 hw_proxy.drivers['zpl'] = driver
 
 
-class ZplProxy(hw_proxy.Proxy):
+class ZPLProxy(hw_proxy.Proxy):
 
     @http.route('/hw_proxy/print_label', type='json', auth='none', cors='*')
-    def print_receipt(self, receipt):
+    def print_label(self, label):
         _logger.info('ZPL: PRINT LABEL')
-        driver.push_task('label',receipt)
+        driver.push_task('label', label)
 
     @http.route('/hw_proxy/print_xml_label', type='json', auth='none', cors='*')
-    def print_xml_receipt(self, receipt):
+    def print_xml_receipt(self, label):
         _logger.info('ZPL: PRINT XML LABEL')
-        driver.push_task('xml_label',receipt)
+        driver.push_task('xml_label', label)

@@ -1,3 +1,3 @@
-from . import zpl, exceptions, printer
+from . import zpl, printer
 
-__all__ = ["zpl", "exceptions", "printer"]
+__all__ = ["zpl", "printer"]
