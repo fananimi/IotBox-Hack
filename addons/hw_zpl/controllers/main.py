@@ -153,7 +153,11 @@ class ZPLDriver(Thread):
         self.queue.put((time.time(), task, data))
 
     def print_status(self, eprint):
-        print "print status"
+        eprint.send_job('''^XA
+^FO150,40^BY3
+^BCN,110,Y,N,N
+^FD123456^FS
+^XZ ''')
         pass
 
 

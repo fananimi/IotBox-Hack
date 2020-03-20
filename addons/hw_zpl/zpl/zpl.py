@@ -16,7 +16,7 @@ class Zpl:
         self._stat = {}
 
     def send_job(self, zpl2):
-        print(zpl2)
+        self._raw(zpl2)
 
     def request_info(self, command):
         raise Exception("not implemented in this printer class")

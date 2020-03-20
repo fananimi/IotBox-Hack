@@ -66,13 +66,17 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         # web_service
         self.txtPort.setText('%d' % self.state.web_service.port)
         # ZPL
+        zpl_printer_connected = True if self.state.printer_zpl.status else False
         self.txtPrinterZPL.setText(self.state.printer_zpl.get_status_display())
-        colorZPL = 'green' if self.state.printer_zpl.status else 'red'
+        colorZPL = 'green' if zpl_printer_connected else 'red'
         self.txtPrinterZPL.setStyleSheet('color: %s' % colorZPL)
+        self.btnTestZPL.setEnabled(zpl_printer_connected)
         # ESCPOS
+        escpos_printer_connected = True if self.state.printer_escpos.status else False
         self.txtPrinterESCPOS.setText(self.state.printer_escpos.get_status_display())
-        colorESCPOS = 'green' if self.state.printer_escpos.status else 'red'
+        colorESCPOS = 'green' if escpos_printer_connected else 'red'
         self.txtPrinterESCPOS.setStyleSheet('color: %s' % colorESCPOS)
+        self.btnTestESCPOS.setEnabled(escpos_printer_connected)
 
     # --------------------------------------------------------------------------------
     # ****************** All threads must register on this section ******************|

@@ -38,6 +38,9 @@
          <string>Printer</string>
         </property>
         <layout class="QFormLayout" name="formLayout_3">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label_2">
            <property name="minimumSize">
@@ -48,6 +51,16 @@
            </property>
            <property name="text">
             <string>ZPL</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbZPL">
+           <property name="minimumSize">
+            <size>
+             <width>250</width>
+             <height>0</height>
+            </size>
            </property>
           </widget>
          </item>
@@ -66,16 +79,6 @@
          </item>
          <item row="1" column="1">
           <widget class="QComboBox" name="cmbESCPOS">
-           <property name="minimumSize">
-            <size>
-             <width>250</width>
-             <height>0</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="cmbZPL">
            <property name="minimumSize">
             <size>
              <width>250</width>
@@ -225,6 +228,41 @@ QGroupBox::title {
         </layout>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string/>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QPushButton" name="btnTestZPL">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Print Test</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnTestESCPOS">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>Print Test</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -267,6 +305,9 @@ QGroupBox::title {
       </item>
       <item>
        <widget class="QPushButton" name="btnReload">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Reload</string>
         </property>
@@ -277,6 +318,9 @@ QGroupBox::title {
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Apply</string>
         </property>
@@ -284,6 +328,9 @@ QGroupBox::title {
       </item>
       <item>
        <widget class="QPushButton" name="btnClose">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Close</string>
         </property>
