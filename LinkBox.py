@@ -118,10 +118,14 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()
-        if cmbID == 'cmbESCPOS':
-            pass
         if cmbID == 'cmbZPL':
-            pass
+            # prevent same printer selected
+            if row > 0 and self.cmbESCPOS.currentIndex() == row:
+                self.cmbESCPOS.setCurrentIndex(0)
+        if cmbID == 'cmbESCPOS':
+            # prevent same printer selected
+            if row > 0 and self.cmbZPL.currentIndex() == row:
+                self.cmbZPL.setCurrentIndex(0)
         self.changed()
 
     def on_click_button(self):
@@ -163,24 +167,22 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.cmbZPL.clear()
         self.cmbESCPOS.clear()
         printers = [printer for printer in FindPrinters()]
-        for printer_type in [StateManager.ZPL_PRINTER, StateManager.ESCPOS_PRINTER]:
-            _printers = []
-            if printer_type == StateManager.ZPL_PRINTER:
-                _printers.append(self.state.printer_zpl)
-            if printer_type == StateManager.ESCPOS_PRINTER:
-                _printers.append(self.state.printer_escpos)
+        if self.state.printer_zpl not in printers:
+            printers.append(self.state.printer_zpl)
+        if self.state.printer_escpos not in printers:
+            printers.append(self.state.printer_escpos)
 
-            for printer in printers:
-                if printer not in _printers:
-                    _printers.append(printer)
+        # add printers to combobox
+        for printer in printers:
+            zpl_item = QtGui.QStandardItem(printer.description)
+            zpl_item.setData(printer)
+            self.printer_zpl_model.appendRow(zpl_item)
+            escpos_item = QtGui.QStandardItem(printer.description)
+            escpos_item.setData(printer)
+            self.printer_escpos_model.appendRow(escpos_item)
 
-            for printer in _printers:
-                _item = QtGui.QStandardItem(printer.description)
-                _item.setData(printer)
-                if printer_type == StateManager.ZPL_PRINTER:
-                    self.printer_zpl_model.appendRow(_item)
-                if printer_type == StateManager.ESCPOS_PRINTER:
-                    self.printer_escpos_model.appendRow(_item)
+        self.cmbZPL.setCurrentIndex(printers.index(self.state.printer_zpl))
+        self.cmbESCPOS.setCurrentIndex(printers.index(self.state.printer_escpos))
 
     def get_combobox_object(self, combobox, model):
         index = combobox.currentIndex()

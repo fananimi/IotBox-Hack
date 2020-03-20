@@ -100,7 +100,8 @@ class FindPrinters(object):
     # default constructors
     def __init__(self):
         self._current = 0
-        self._printers = self._get_connected_usb_printers()
+        self._printers = [Printer(0, 0, '')]
+        self._printers += self._get_connected_usb_printers()
         self._length = len(self._printers)
 
     def __iter__(self):
