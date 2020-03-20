@@ -5,7 +5,7 @@ import logging
 from PyQt4 import QtCore, QtGui
 
 from addons.hw_proxy.controllers.main import drivers
-from odoo.thread import WebThread, StatusMonitorThread
+from odoo.thread import WebThread
 from odoo.ui import SystemTrayIcon
 from static.images import xpm
 from ui.main import Ui_Dialog
@@ -61,22 +61,8 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.cmbESCPOS.setModel(self.printer_escpos_model)
         # trigger printers
         self._reload_printers()
-
-    def update_status(self):
         # web_service
         self.txtPort.setText('%d' % self.state.web_service.port)
-        # ZPL
-        zpl_printer_connected = True if self.state.printer_zpl.status else False
-        self.txtPrinterZPL.setText(self.state.printer_zpl.get_status_display())
-        colorZPL = 'green' if zpl_printer_connected else 'red'
-        self.txtPrinterZPL.setStyleSheet('color: %s' % colorZPL)
-        self.btnTestZPL.setEnabled(zpl_printer_connected)
-        # ESCPOS
-        escpos_printer_connected = True if self.state.printer_escpos.status else False
-        self.txtPrinterESCPOS.setText(self.state.printer_escpos.get_status_display())
-        colorESCPOS = 'green' if escpos_printer_connected else 'red'
-        self.txtPrinterESCPOS.setStyleSheet('color: %s' % colorESCPOS)
-        self.btnTestESCPOS.setEnabled(escpos_printer_connected)
 
     # --------------------------------------------------------------------------------
     # ****************** All threads must register on this section ******************|
@@ -84,11 +70,11 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
     def _register_thread(self):
         self.web_thread = WebThread()
         self.web_thread.start()
-        self.status_monitor_thread = StatusMonitorThread()
-        self.status_monitor_thread.start()
         # run all driver
         for key in drivers.keys():
-            drivers[key].start()
+            attr_name = 'driver_%s_thread' % key
+            setattr(self, attr_name, drivers[key])
+            getattr(self, attr_name).start()
 
     # --------------------------------------------------------------------------------
     # ****************** All signals must register on this section ******************|
@@ -97,13 +83,38 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
         self.btnClose.clicked.connect(self.on_click_button)
         self.btnApply.clicked.connect(self.on_click_button)
         self.btnReload.clicked.connect(self.on_click_button)
+        self.btnTestZPL.clicked.connect(self.on_click_button)
+        self.btnTestESCPOS.clicked.connect(self.on_click_button)
         self.cmbZPL.currentIndexChanged[int].connect(self.on_combobox_index_changed)
         self.cmbESCPOS.currentIndexChanged[int].connect(self.on_combobox_index_changed)
-        self.connect(self.status_monitor_thread, QtCore.SIGNAL("update_status()"), self.update_status)
+        # register signal for printer driver
+        # the following section required for update printer connected status
+        for key in drivers.keys():
+            attr_name = 'driver_%s_thread' % key
+            self.connect(getattr(self, attr_name),
+                         QtCore.SIGNAL("update_printer_status(QString, QString)"),
+                         self.update_printer_status)
 
     # --------------------------------------------------------------------------------
     # ******************** Callback function for signals is here ********************|
     # --------------------------------------------------------------------------------
+    def update_printer_status(self, printer_type, status):
+        printer_type, status = (int(printer_type), int(status))
+        if printer_type == StateManager.ZPL_PRINTER:
+            zpl_printer_connected = True if status else False
+            self.txtPrinterZPL.setText(self.state.printer_zpl.get_status_display())
+            colorZPL = 'green' if zpl_printer_connected else 'red'
+            self.txtPrinterZPL.setStyleSheet('color: %s' % colorZPL)
+            self.btnTestZPL.setEnabled(zpl_printer_connected)
+            return
+        if printer_type == StateManager.ESCPOS_PRINTER:
+            escpos_printer_connected = True if status else False
+            self.txtPrinterESCPOS.setText(self.state.printer_escpos.get_status_display())
+            colorESCPOS = 'green' if escpos_printer_connected else 'red'
+            self.txtPrinterESCPOS.setStyleSheet('color: %s' % colorESCPOS)
+            self.btnTestESCPOS.setEnabled(escpos_printer_connected)
+            return
+
     @QtCore.pyqtSlot(int)
     def on_combobox_index_changed(self, row):
         cmbID = self.sender().objectName()
@@ -123,6 +134,11 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             return
         if btnID == 'btnReload':
             self._reload_printers()
+            return
+        if btnID == 'btnTestZPL':
+            print 'test zpl'
+            return
+        if btnID == 'btnTestESCPOS':
             return
 
     # --------------------------------------------------------------------------------

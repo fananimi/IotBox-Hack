@@ -194,12 +194,15 @@ QGroupBox::title {
          <item row="0" column="2">
           <widget class="QLabel" name="txtPort">
            <property name="text">
-            <string>None</string>
+            <string>N/A</string>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="txtPrinterZPL">
+           <property name="styleSheet">
+            <string notr="true">color: red</string>
+           </property>
            <property name="text">
             <string>Disconnected</string>
            </property>
@@ -207,6 +210,9 @@ QGroupBox::title {
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="txtPrinterESCPOS">
+           <property name="styleSheet">
+            <string notr="true">color: red</string>
+           </property>
            <property name="text">
             <string>Disconnected</string>
            </property>

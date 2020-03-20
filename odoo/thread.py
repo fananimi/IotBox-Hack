@@ -38,11 +38,3 @@ class WebThread(Thread):
         app.install(JSONRPCPlugin())
         port = StateManager.getInstance().web_service.port
         app.run(host='localhost', port=port, debug=False)
-
-
-class StatusMonitorThread(Thread):
-
-    def run(self):
-        while True:
-            self.emit(QtCore.SIGNAL("update_status()"))
-            time.sleep(1)

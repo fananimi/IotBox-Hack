@@ -2,10 +2,10 @@
 import time
 import logging
 import traceback
-import addons.hw_proxy.controllers.main as hw_proxy
-
 from threading import Lock
 from Queue import Queue
+from PyQt4 import QtCore
+import addons.hw_proxy.controllers.main as hw_proxy
 
 try:
     import usb.core
@@ -36,7 +36,7 @@ class ZPLDriver(Thread):
         self.queue = Queue()
         self.lock = Lock()
         self.status = {'status': 'connecting', 'messages': []}
-        self.current_printer_status = Printer.STATUS_DISCONNECTED
+        self.current_printer_status = None
 
     def lockedstart(self):
         with self.lock:
@@ -65,6 +65,11 @@ class ZPLDriver(Thread):
                     )
                 else:
                     self.set_status('disconnected', 'Printer Not Found')
+
+            # update status in GUI
+            self.emit(QtCore.SIGNAL("update_printer_status(QString, QString)"),
+                      str(StateManager.ZPL_PRINTER),
+                      str(printer.status))
 
         return printer_device
 
@@ -163,7 +168,6 @@ class ZPLDriver(Thread):
 
 driver = ZPLDriver()
 driver.push_task('status')
-driver.push_task('printstatus')
 hw_proxy.drivers['zpl'] = driver
 
 
