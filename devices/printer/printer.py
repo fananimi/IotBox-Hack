@@ -1,4 +1,3 @@
-import os
 import time
 import logging
 import usb.core
@@ -128,7 +127,8 @@ class Usb(object):
         @param in_ep     : Input end point
         @param out_ep    : Output end point
         """
-
+        self.device = None
+        self.check_driver = False
         self.idVendor = idVendor
         self.idProduct = idProduct
         self.interface = interface
@@ -142,9 +142,27 @@ class Usb(object):
         self.device = usb.core.find(idVendor=self.idVendor, idProduct=self.idProduct)
         if self.device is None:
             raise NoDeviceError()
+
+        # pyusb has three backends: libusb0, libusb1 and openusb but
+        # only libusb1 backend implements the methods is_kernel_driver_active()
+        # and detach_kernel_driver().
+        # This helps enable this library to work on Windows.
+        if self.device.backend.__module__.endswith("libusb1"):
+            self.check_driver = True
+
+            try:
+                self.check_driver = self.device.is_kernel_driver_active(self.interface)
+            except NotImplementedError:
+                pass
+
+            if self.check_driver:
+                try:
+                    self.device.detach_kernel_driver(self.interface)
+                except usb.core.USBError as e:
+                    if self.check_driver:
+                        _logger.error("Could not detatch kernel driver: {0}".format(str(e)))
+
         try:
-            if os.name == 'posix' and self.device.is_kernel_driver_active(self.interface):
-                self.device.detach_kernel_driver(self.interface)
             self.device.set_configuration()
             usb.util.claim_interface(self.device, self.interface)
 
@@ -167,20 +185,6 @@ class Usb(object):
         except usb.core.USBError as e:
             raise HandleDeviceError(e)
 
-    def close_on_posix(self):
-        if not self.device.is_kernel_driver_active(self.interface):
-            usb.util.release_interface(self.device, self.interface)
-            self.device.attach_kernel_driver(self.interface)
-            usb.util.dispose_resources(self.device)
-        else:
-            self.device = None
-
-    def close_on_nt(self):
-        if self.device:
-            usb.util.release_interface(self.device, self.interface)
-            usb.util.dispose_resources(self.device)
-        self.device = None
-
     def close(self):
         i = 0
         while True:
@@ -188,10 +192,11 @@ class Usb(object):
                 if not self.device:
                     return True
 
-                if os.name == 'posix':
-                    self.close_on_posix()
-                if os.name == 'nt':
-                    self.close_on_nt()
+                usb.util.release_interface(self.device, self.interface)
+                if self.check_driver:
+                    self.device.attach_kernel_driver(self.interface)
+                usb.util.dispose_resources(self.device)
+                self.device = None
             except usb.core.USBError as e:
                 i += 1
                 if i > 10:
