@@ -327,6 +327,7 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 driver.push_task('status')
+driver.push_task('printstatus')
 hw_proxy.drivers['escpos'] = driver
 
 
