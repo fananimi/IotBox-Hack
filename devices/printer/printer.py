@@ -19,6 +19,7 @@ class Printer(object):
         self.vendor_id = vendor_id
         self.description = description
         self.status = Printer.STATUS_DISCONNECTED
+        self.print_test_request = False
 
     def get_status_display(self):
         if self.status == Printer.STATUS_DISCONNECTED:

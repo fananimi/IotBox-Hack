@@ -136,9 +136,10 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
             self._reload_printers()
             return
         if btnID == 'btnTestZPL':
-            print 'test zpl'
+            self.state.printer_zpl.print_test_request = True
             return
         if btnID == 'btnTestESCPOS':
+            self.state.printer_escpos.print_test_request = True
             return
 
     # --------------------------------------------------------------------------------

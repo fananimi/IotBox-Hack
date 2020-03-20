@@ -46,6 +46,11 @@ class ZPLDriver(Thread):
 
     def get_zpl_printer(self):
         printer = StateManager.getInstance().printer_zpl
+        # print test request coming out
+        if printer.print_test_request:
+            self.push_task('printstatus')
+            printer.print_test_request = False
+
         printer_device = None
         try:
             printer_device = Usb(printer.vendor_id, printer.product_id)
