@@ -5,10 +5,10 @@ import logging
 import netifaces
 import traceback
 import release
-import addons.hw_proxy.controllers.main as hw_proxy
-
 from threading import Lock
 from Queue import Queue
+from PyQt4 import QtCore
+import addons.hw_proxy.controllers.main as hw_proxy
 
 try:
     import usb.core
@@ -40,7 +40,7 @@ class EscposDriver(Thread):
         self.queue = Queue()
         self.lock = Lock()
         self.status = {'status': 'connecting', 'messages': []}
-        self.current_printer_status = Printer.STATUS_DISCONNECTED
+        self.current_printer_status = None
 
     def lockedstart(self):
         with self.lock:
@@ -69,6 +69,11 @@ class EscposDriver(Thread):
                     )
                 else:
                     self.set_status('disconnected', 'Printer Not Found')
+
+            # update status in GUI
+            self.emit(QtCore.SIGNAL("update_printer_status(QString, QString)"),
+                      str(StateManager.ESCPOS_PRINTER),
+                      str(printer.status))
 
         return printer_device
 
@@ -327,7 +332,6 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 driver.push_task('status')
-driver.push_task('printstatus')
 hw_proxy.drivers['escpos'] = driver
 
 
