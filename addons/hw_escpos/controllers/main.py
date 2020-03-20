@@ -40,6 +40,7 @@ class EscposDriver(Thread):
         self.queue = Queue()
         self.lock = Lock()
         self.status = {'status': 'connecting', 'messages': []}
+        self.current_printer_status = Printer.STATUS_DISCONNECTED
 
     def lockedstart(self):
         with self.lock:
@@ -49,21 +50,27 @@ class EscposDriver(Thread):
 
     def get_escpos_printer(self):
         printer = StateManager.getInstance().printer_escpos
+        printer_device = None
         try:
             printer_device = Usb(printer.vendor_id, printer.product_id)
-            self.set_status(
-                'connected',
-                "Connected to %s (in=0x%02x,out=0x%02x)" % (printer.description,
-                                                            printer_device.in_ep,
-                                                            printer_device.out_ep)
-            )
             printer.status = Printer.STATUS_CONNECTED
             return printer_device
         except NoDeviceError:
             printer.status = Printer.STATUS_DISCONNECTED
-            self.set_status('disconnected', 'Printer Not Found')
+        finally:
+            if printer.status != self.current_printer_status:
+                self.current_printer_status = printer.status
+                if printer_device:
+                    self.set_status(
+                        'connected',
+                        "Connected to %s (in=0x%02x,out=0x%02x)" % (printer.description,
+                                                                    printer_device.in_ep,
+                                                                    printer_device.out_ep)
+                    )
+                else:
+                    self.set_status('disconnected', 'Printer Not Found')
 
-        return None
+        return printer_device
 
     def get_status(self):
         return self.status
@@ -106,7 +113,6 @@ class EscposDriver(Thread):
                     if task != 'status':
                         self.queue.put((timestamp, task, data))
                     error = False
-                    time.sleep(1)
                     continue
                 elif task == 'receipt':
                     if timestamp >= time.time() - 1 * 60 * 60:
@@ -142,6 +148,7 @@ class EscposDriver(Thread):
                 if printer:
                     printer.close()
                 self.push_task('status')
+                time.sleep(0.25)
 
     def push_task(self, task, data=None):
         self.lockedstart()
