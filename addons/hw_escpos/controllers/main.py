@@ -1,21 +1,12 @@
 # -*- coding: utf-8 -*-
-import logging
-
 import time
 import math
+import logging
 import netifaces
-
 import traceback
-
-try:
-    from .. escpos import *
-    from .. escpos.exceptions import *
-    from .. escpos.printer import Usb
-except ImportError:
-    escpos = printer = None
-
 import release
-from odoo.thread import Thread
+import addons.hw_proxy.controllers.main as hw_proxy
+
 from threading import Lock
 from Queue import Queue
 
@@ -24,18 +15,22 @@ try:
 except ImportError:
     usb = None
 
-from odoo import http
-import addons.hw_proxy.controllers.main as hw_proxy
-from odoo.tools.translate import _
-
-from state import StateManager
 from devices import Printer
+from devices.printer.exceptions import (NoDeviceError, NoStatusError,
+                                        TicketNotPrinted, HandleDeviceError)
+from odoo import http
+from odoo.thread import Thread
+from odoo.tools.translate import _
+from state import StateManager
+
+from ..escpos.printer import Usb
 
 _logger = logging.getLogger(__name__)
 
 # workaround https://bugs.launchpad.net/openobject-server/+bug/947231
 # related to http://bugs.python.org/issue7980
 from datetime import datetime
+
 datetime.strptime('2012-01-01', '%Y-%m-%d')
 
 
@@ -43,8 +38,8 @@ class EscposDriver(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.queue = Queue()
-        self.lock  = Lock()
-        self.status = {'status':'connecting', 'messages':[]}
+        self.lock = Lock()
+        self.status = {'status': 'connecting', 'messages': []}
 
     def lockedstart(self):
         with self.lock:
@@ -66,19 +61,19 @@ class EscposDriver(Thread):
             return printer_device
         except NoDeviceError:
             printer.status = Printer.STATUS_DISCONNECTED
-            self.set_status('disconnected','Printer Not Found')
+            self.set_status('disconnected', 'Printer Not Found')
 
         return None
 
     def get_status(self):
         return self.status
 
-    def open_cashbox(self,printer):
+    def open_cashbox(self, printer):
         printer.cashdraw(2)
         printer.cashdraw(5)
 
-    def set_status(self, status, message = None):
-        _logger.info(status+' : '+ (message or 'no message'))
+    def set_status(self, status, message=None):
+        _logger.info(status + ' : ' + (message or 'no message'))
         if status == self.status['status']:
             if message != None and (len(self.status['messages']) == 0 or message != self.status['messages'][-1]):
                 self.status['messages'].append(message)
@@ -90,15 +85,12 @@ class EscposDriver(Thread):
                 self.status['messages'] = []
 
         if status == 'error' and message:
-            _logger.error('ESC/POS Error: '+message)
+            _logger.error('ESC/POS Error: ' + message)
         elif status == 'disconnected' and message:
-            _logger.warning('ESC/POS Device Disconnected: '+message)
+            _logger.warning('ESC/POS Device Disconnected: ' + message)
 
     def run(self):
         printer = None
-        if not escpos:
-            _logger.error('ESC/POS cannot initialize, please verify system dependencies.')
-            return
         while True:
             error = True
             try:
@@ -112,13 +104,13 @@ class EscposDriver(Thread):
 
                 if printer == None:
                     if task != 'status':
-                        self.queue.put((timestamp,task,data))
+                        self.queue.put((timestamp, task, data))
                     error = False
                     time.sleep(1)
                     continue
                 elif task == 'receipt':
                     if timestamp >= time.time() - 1 * 60 * 60:
-                        self.print_receipt_body(printer,data)
+                        self.print_receipt_body(printer, data)
                         printer.cut()
                 elif task == 'xml_receipt':
                     if timestamp >= time.time() - 1 * 60 * 60:
@@ -133,7 +125,7 @@ class EscposDriver(Thread):
                 error = False
 
             except NoDeviceError as e:
-                print "No device found %s" %str(e)
+                print "No device found %s" % str(e)
             except HandleDeviceError as e:
                 print "Impossible to handle the device due to previous error %s" % str(e)
             except TicketNotPrinted as e:
@@ -142,7 +134,7 @@ class EscposDriver(Thread):
                 print "Impossible to get the status of the printer %s" % str(e)
             except Exception as e:
                 self.set_status('error', str(e))
-                errmsg = str(e) + '\n' + '-'*60+'\n' + traceback.format_exc() + '-'*60 + '\n'
+                errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
                 _logger.error(errmsg);
             finally:
                 if error:
@@ -151,13 +143,13 @@ class EscposDriver(Thread):
                     printer.close()
                 self.push_task('status')
 
-    def push_task(self,task, data = None):
+    def push_task(self, task, data=None):
         self.lockedstart()
-        self.queue.put((time.time(),task,data))
+        self.queue.put((time.time(), task, data))
 
-    def print_status(self,eprint):
+    def print_status(self, eprint):
         eprint.text('\n')
-        eprint.set(align='center',type='b',height=2,width=2)
+        eprint.set(align='center', type='b', height=2, width=2)
         eprint.text('LinkBox Status\n')
         eprint.set(align='center')
         eprint.text("VERSION: %s\n" % release.version)
@@ -194,20 +186,20 @@ class EscposDriver(Thread):
         eprint.text('\n')
         eprint.cut()
 
-    def print_receipt_body(self,eprint,receipt):
+    def print_receipt_body(self, eprint, receipt):
 
         def check(string):
             return string != True and bool(string) and string.strip()
 
         def price(amount):
-            return ("{0:."+str(receipt['precision']['price'])+"f}").format(amount)
+            return ("{0:." + str(receipt['precision']['price']) + "f}").format(amount)
 
         def money(amount):
-            return ("{0:."+str(receipt['precision']['money'])+"f}").format(amount)
+            return ("{0:." + str(receipt['precision']['money']) + "f}").format(amount)
 
         def quantity(amount):
             if math.floor(amount) != amount:
-                return ("{0:."+str(receipt['precision']['quantity'])+"f}").format(amount)
+                return ("{0:." + str(receipt['precision']['quantity']) + "f}").format(amount)
             else:
                 return str(amount)
 
@@ -229,7 +221,7 @@ class EscposDriver(Thread):
         def print_taxes():
             taxes = receipt['tax_details']
             for tax in taxes:
-                eprint.text(printline(tax['tax']['name'],price(tax['amount']), width=40,ratio=0.6))
+                eprint.text(printline(tax['tax']['name'], price(tax['amount']), width=40, ratio=0.6))
 
         # Receipt Header
         if receipt['company']['logo']:
@@ -237,10 +229,10 @@ class EscposDriver(Thread):
             eprint.print_base64_image(receipt['company']['logo'])
             eprint.text('\n')
         else:
-            eprint.set(align='center',type='b',height=2,width=2)
+            eprint.set(align='center', type='b', height=2, width=2)
             eprint.text(receipt['company']['name'] + '\n')
 
-        eprint.set(align='center',type='b')
+        eprint.set(align='center', type='b')
         if check(receipt['company']['contact_address']):
             eprint.text(receipt['company']['contact_address'] + '\n')
         if check(receipt['company']['phone']):
@@ -252,10 +244,10 @@ class EscposDriver(Thread):
         if check(receipt['company']['website']):
             eprint.text(receipt['company']['website'] + '\n')
         if check(receipt['header']):
-            eprint.text(receipt['header']+'\n')
+            eprint.text(receipt['header'] + '\n')
         if check(receipt['cashier']):
-            eprint.text('-'*32+'\n')
-            eprint.text('Served by '+receipt['cashier']+'\n')
+            eprint.text('-' * 32 + '\n')
+            eprint.text('Served by ' + receipt['cashier'] + '\n')
 
         # Orderlines
         eprint.text('\n\n')
@@ -263,30 +255,32 @@ class EscposDriver(Thread):
         for line in receipt['orderlines']:
             pricestr = price(line['price_display'])
             if line['discount'] == 0 and line['unit_name'] == 'Unit(s)' and line['quantity'] == 1:
-                eprint.text(printline(line['product_name'],pricestr,ratio=0.6))
+                eprint.text(printline(line['product_name'], pricestr, ratio=0.6))
             else:
-                eprint.text(printline(line['product_name'],ratio=0.6))
+                eprint.text(printline(line['product_name'], ratio=0.6))
                 if line['discount'] != 0:
-                    eprint.text(printline('Discount: '+str(line['discount'])+'%', ratio=0.6, indent=2))
+                    eprint.text(printline('Discount: ' + str(line['discount']) + '%', ratio=0.6, indent=2))
                 if line['unit_name'] == 'Unit(s)':
-                    eprint.text( printline( quantity(line['quantity']) + ' x ' + price(line['price']), pricestr, ratio=0.6, indent=2))
+                    eprint.text(
+                        printline(quantity(line['quantity']) + ' x ' + price(line['price']), pricestr, ratio=0.6,
+                                  indent=2))
                 else:
-                    eprint.text( printline( quantity(line['quantity']) + line['unit_name'] + ' x ' + price(line['price']), pricestr, ratio=0.6, indent=2))
+                    eprint.text(printline(quantity(line['quantity']) + line['unit_name'] + ' x ' + price(line['price']),
+                                          pricestr, ratio=0.6, indent=2))
 
         # Subtotal if the taxes are not included
         taxincluded = True
         if money(receipt['subtotal']) != money(receipt['total_with_tax']):
-            eprint.text(printline('','-------'));
-            eprint.text(printline(_('Subtotal'),money(receipt['subtotal']),width=40, ratio=0.6))
+            eprint.text(printline('', '-------'));
+            eprint.text(printline(_('Subtotal'), money(receipt['subtotal']), width=40, ratio=0.6))
             print_taxes()
-            #eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
+            # eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
             taxincluded = False
 
-
         # Total
-        eprint.text(printline('','-------'));
-        eprint.set(align='center',height=2)
-        eprint.text(printline(_('         TOTAL'),money(receipt['total_with_tax']),width=40, ratio=0.6))
+        eprint.text(printline('', '-------'));
+        eprint.set(align='center', height=2)
+        eprint.text(printline(_('         TOTAL'), money(receipt['total_with_tax']), width=40, ratio=0.6))
         eprint.text('\n\n');
 
         # Paymentlines
@@ -295,34 +289,32 @@ class EscposDriver(Thread):
             eprint.text(printline(line['journal'], money(line['amount']), ratio=0.6))
 
         eprint.text('\n');
-        eprint.set(align='center',height=2)
-        eprint.text(printline(_('        CHANGE'),money(receipt['change']),width=40, ratio=0.6))
+        eprint.set(align='center', height=2)
+        eprint.text(printline(_('        CHANGE'), money(receipt['change']), width=40, ratio=0.6))
         eprint.set(align='center')
         eprint.text('\n');
 
         # Extra Payment info
         if receipt['total_discount'] != 0:
-            eprint.text(printline(_('Discounts'),money(receipt['total_discount']),width=40, ratio=0.6))
+            eprint.text(printline(_('Discounts'), money(receipt['total_discount']), width=40, ratio=0.6))
         if taxincluded:
             print_taxes()
-            #eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
+            # eprint.text(printline(_('Taxes'),money(receipt['total_tax']),width=40, ratio=0.6))
 
         # Footer
         if check(receipt['footer']):
-            eprint.text('\n'+receipt['footer']+'\n\n')
-        eprint.text(receipt['name']+'\n')
-        eprint.text(      str(receipt['date']['date']).zfill(2)
-                    +'/'+ str(receipt['date']['month']+1).zfill(2)
-                    +'/'+ str(receipt['date']['year']).zfill(4)
-                    +' '+ str(receipt['date']['hour']).zfill(2)
-                    +':'+ str(receipt['date']['minute']).zfill(2) )
+            eprint.text('\n' + receipt['footer'] + '\n\n')
+        eprint.text(receipt['name'] + '\n')
+        eprint.text(str(receipt['date']['date']).zfill(2)
+                    + '/' + str(receipt['date']['month'] + 1).zfill(2)
+                    + '/' + str(receipt['date']['year']).zfill(4)
+                    + ' ' + str(receipt['date']['hour']).zfill(2)
+                    + ':' + str(receipt['date']['minute']).zfill(2))
 
 
 driver = EscposDriver()
-
 driver.push_task('status')
 driver.push_task('printstatus')
-
 hw_proxy.drivers['escpos'] = driver
 
 
@@ -336,9 +328,9 @@ class EscposProxy(hw_proxy.Proxy):
     @http.route('/hw_proxy/print_receipt', type='json', auth='none', cors='*')
     def print_receipt(self, receipt):
         _logger.info('ESC/POS: PRINT RECEIPT')
-        driver.push_task('receipt',receipt)
+        driver.push_task('receipt', receipt)
 
     @http.route('/hw_proxy/print_xml_receipt', type='json', auth='none', cors='*')
     def print_xml_receipt(self, receipt):
         _logger.info('ESC/POS: PRINT XML RECEIPT')
-        driver.push_task('xml_receipt',receipt)
+        driver.push_task('xml_receipt', receipt)
