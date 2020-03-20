@@ -97,9 +97,8 @@ class EscposDriver(Thread):
             _logger.warning('ESC/POS Device Disconnected: ' + message)
 
     def run(self):
-        printer = None
         while True:
-            error = True
+            error = False
             try:
                 timestamp, task, data = self.queue.get(True)
 
@@ -109,36 +108,42 @@ class EscposDriver(Thread):
                 except Exception as e:
                     _logger.error(e)
 
-                if printer == None:
-                    if task != 'status':
-                        self.queue.put((timestamp, task, data))
-                    error = False
-                    continue
-                elif task == 'receipt':
-                    if timestamp >= time.time() - 1 * 60 * 60:
-                        self.print_receipt_body(printer, data)
-                        printer.cut()
-                elif task == 'xml_receipt':
-                    if timestamp >= time.time() - 1 * 60 * 60:
-                        printer.receipt(data)
-                elif task == 'cashbox':
-                    if timestamp >= time.time() - 12:
-                        self.open_cashbox(printer)
-                elif task == 'printstatus':
-                    self.print_status(printer)
-                elif task == 'status':
-                    pass
-                error = False
+                if printer:
+                    if task == 'status':
+                        # nothing todo
+                        continue
 
+                    # specific done bellow
+                    if task == 'receipt':
+                        if timestamp >= time.time() - 1 * 60 * 60:
+                            self.print_receipt_body(printer, data)
+                            printer.cut()
+                    elif task == 'xml_receipt':
+                        if timestamp >= time.time() - 1 * 60 * 60:
+                            printer.receipt(data)
+                    elif task == 'cashbox':
+                        if timestamp >= time.time() - 12:
+                            self.open_cashbox(printer)
+                    elif task == 'printstatus':
+                        self.print_status(printer)
+                else:
+                    if task != 'status':
+                        # re-add job if exists
+                        self.queue.put((timestamp, task, data))
             except NoDeviceError as e:
+                error = True
                 print "No device found %s" % str(e)
             except HandleDeviceError as e:
+                error = True
                 print "Impossible to handle the device due to previous error %s" % str(e)
             except TicketNotPrinted as e:
+                error = True
                 print "The ticket does not seems to have been fully printed %s" % str(e)
             except NoStatusError as e:
+                error = True
                 print "Impossible to get the status of the printer %s" % str(e)
             except Exception as e:
+                error = True
                 self.set_status('error', str(e))
                 errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
                 _logger.error(errmsg);
@@ -147,6 +152,7 @@ class EscposDriver(Thread):
                     self.queue.put((timestamp, task, data))
                 if printer:
                     printer.close()
+                # check status after complete
                 self.push_task('status')
                 time.sleep(0.25)
 
@@ -321,7 +327,6 @@ class EscposDriver(Thread):
 
 driver = EscposDriver()
 driver.push_task('status')
-driver.push_task('printstatus')
 hw_proxy.drivers['escpos'] = driver
 
 
