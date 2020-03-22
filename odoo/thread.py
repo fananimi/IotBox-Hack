@@ -1,7 +1,11 @@
 import time
 from odoo.http import HTTPServer, EnableCorsPlugin, JSONRPCPlugin, Controller
-from PyQt4 import QtCore
-from PyQt4.QtCore import QThread
+try:
+    from PyQt5 import QtCore
+    from PyQt5.QtCore import QThread
+except ImportError:
+    from PyQt4 import QtCore
+    from PyQt4.QtCore import QThread
 
 from state import StateManager
 

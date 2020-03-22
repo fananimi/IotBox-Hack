@@ -5,7 +5,7 @@ import copy
 import io
 import base64
 import math
-import md5
+import hashlib
 import re
 import traceback
 import xml.etree.ElementTree as ET
@@ -23,8 +23,8 @@ try:
 except ImportError:
     qrcode = None
 
-from constants import *
-from exceptions import *
+from .constants import *
+from .exceptions import *
 
 
 def utfstr(stuff):
@@ -150,8 +150,8 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print 'WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
-                    style[attr]) + ' for style: ' + utfstr(attr)
+                print ('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
+                    style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 _style[attr] = self.enforce_type(attr, style[attr])
         self.stack.append(_style)
@@ -161,8 +161,8 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print 'WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
-                    style[attr]) + ' for style: ' + utfstr(attr)
+                print ('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
+                    style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 self.stack[-1][attr] = self.enforce_type(attr, style[attr])
 
@@ -396,7 +396,7 @@ class Escpos:
         img_size = [0, 0]
 
         if im.size[0] > 512:
-            print  "WARNING: Image is wider than 512 and could be truncated at print time "
+            print  ("WARNING: Image is wider than 512 and could be truncated at print time ")
         if im.size[1] > 255:
             raise ImageSizeError()
 
@@ -442,7 +442,7 @@ class Escpos:
 
     def print_base64_image(self, img):
 
-        id = md5.new(img).digest()
+        id = hashlib.md5(img).digest()
 
         if id not in self.img_cache:
 

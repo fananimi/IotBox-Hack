@@ -1,13 +1,13 @@
 import os
 import sys
 import logging
-import ConfigParser
+import configparser
 
 from devices import Printer
 
 
 # The Singleton Class to handle state of the application
-class StateManager(ConfigParser.RawConfigParser):
+class StateManager(configparser.RawConfigParser):
     ZPL_PRINTER = 0
     ESCPOS_PRINTER = 1
 
@@ -29,7 +29,7 @@ class StateManager(ConfigParser.RawConfigParser):
         return StateManager.__instance
 
     def __init__(self):
-        ConfigParser.RawConfigParser.__init__(self)
+        configparser.RawConfigParser.__init__(self)
 
         self.is_frozen = getattr(sys, 'frozen', False)
         if self.is_frozen:
@@ -48,7 +48,7 @@ class StateManager(ConfigParser.RawConfigParser):
                 else:
                     self._create_config()
                     self.readfp(open(self.config_file))
-            except ConfigParser.ParsingError:
+            except configparser.ParsingError:
                 self._create_config()
 
             StateManager.__instance = self
@@ -56,11 +56,11 @@ class StateManager(ConfigParser.RawConfigParser):
     def _create_config(self):
         for section in self.sections():
             self._remove_section(section)
-        with open(self.config_file, "wb") as config_file:
+        with open(self.config_file, "w") as config_file:
             self.write(config_file)
 
     def _write_config(self, section, option, value):
-        with open(self.config_file, "wb") as config_file:
+        with open(self.config_file, "w") as config_file:
             self.set(section, option, value)
             self.write(config_file)
 
@@ -93,7 +93,7 @@ class StateManager(ConfigParser.RawConfigParser):
                         func = getattr(instance, validation_func)
                         # call the function
                         func(value)
-                except (ConfigParser.NoOptionError, ValueError):
+                except (configparser.NoOptionError, ValueError):
                     is_error = True
                     self._write_config(section, option, default_value)
                 finally:
@@ -128,7 +128,12 @@ class StateManager(ConfigParser.RawConfigParser):
 
             def validate_level(self, value):
                 allowed_values = []
-                for level in logging._levelNames.keys():
+                try:
+                    levelnames = [name[1] for name in logging._levelToName.items()]
+                except AttributeError:
+                    levelnames = logging._levelNames.keys()
+
+                for level in levelnames:
                     if isinstance(level, str):
                         allowed_values.append(level)
                 if value not in allowed_values:

@@ -2,13 +2,19 @@ import sys
 import signal
 import logging
 
-from PyQt4 import QtCore, QtGui
+try:
+    from PyQt5 import QtCore, QtGui, QtWidgets
+    QDialog = QtWidgets.QDialog
+    QApplication = QtWidgets.QApplication
+except ImportError:
+    from PyQt4 import QtCore, QtGui
+    QDialog = QtGui.QDialog
+    QApplication = QtGui.QApplication
 
 from addons.hw_proxy.controllers.main import drivers
 from odoo.thread import WebThread
 from odoo.ui import SystemTrayIcon
 from static.images import xpm
-from ui.main import Ui_Dialog
 
 from state import StateManager
 from devices import FindPrinters
@@ -33,10 +39,11 @@ def setup_log():
         )
 
 
-class LinkBox(QtGui.QDialog, Ui_Dialog):
+class LinkBox(QDialog):
 
     def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
+        uic.loadUi('ui/main.ui', self)
         self.state = StateManager.getInstance()
         self.state.set_dialog(self)
         self.setupUi(self)
@@ -210,7 +217,7 @@ class LinkBox(QtGui.QDialog, Ui_Dialog):
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 
     # show system try icon
     systemTryIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))

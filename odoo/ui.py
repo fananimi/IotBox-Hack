@@ -1,16 +1,22 @@
 import release
-from PyQt4 import QtCore, QtGui
+try:
+    from PyQt5 import QtCore, QtGui, QtWidgets
+    QMenu = QtWidgets.QMenu
+    QSystemTrayIcon = QtWidgets.QSystemTrayIcon
+except ImportError:
+    from PyQt4 import QtCore, QtGui
+    QMenu = QtGui.QMenu
+    QSystemTrayIcon = QtGui.QSystemTrayIcon
 
 from state import StateManager
 
 
-class SystemTrayIcon(QtGui.QSystemTrayIcon):
+class SystemTrayIcon(QSystemTrayIcon):
 
     def __init__(self, icon, parent=None):
-        super(SystemTrayIcon, self).__init__(parent)
+        super(SystemTrayIcon, self).__init__(icon, parent)
 
-        QtGui.QSystemTrayIcon.__init__(self, icon, parent)
-        menu = QtGui.QMenu(parent)
+        menu = QMenu(parent)
         # add menu
         versionAction = menu.addAction("LinkBox %s" % release.version)
         QtCore.QObject.connect(versionAction, QtCore.SIGNAL('triggered()'), self.show_dialog)
