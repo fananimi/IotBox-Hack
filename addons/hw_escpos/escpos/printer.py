@@ -4,21 +4,14 @@ from .escpos import Escpos
 from .constants import (PAPER_FULL_CUT, DLE_EOT_PRINTER,
                         DLE_EOT_OFFLINE, DLE_EOT_ERROR, DLE_EOT_PAPER)
 from devices.printer import Usb as UsbPrinter
-from devices.printer.exceptions import TicketNotPrinted
 
 
 class Usb(UsbPrinter, Escpos):
     """ Define USB printer """
 
-    def __init__(self, idVendor, idProduct, interface=0, in_ep=None, out_ep=None):
-        UsbPrinter.__init__(self, idVendor, idProduct, interface, in_ep, out_ep)
+    def __init__(self, idVendor, idProduct, interface=0, timeout=5000, in_ep=None, out_ep=None):
+        UsbPrinter.__init__(self, idVendor, idProduct, interface, timeout, in_ep, out_ep)
         self.errorText = "ERROR PRINTER\n\n\n\n\n\n" + PAPER_FULL_CUT
-
-    def _raw(self, msg):
-        """ Print any command sent in raw format """
-        if len(msg) != self.device.write(self.out_ep, msg, self.interface, timeout=5000):
-            self.device.write(self.out_ep, self.errorText, self.interface)
-            raise TicketNotPrinted()
 
     def get_printer_status(self):
         status = {

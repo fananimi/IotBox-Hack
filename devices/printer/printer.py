@@ -53,37 +53,37 @@ class FindPrinters(object):
         # printers can either define bDeviceClass=7, or they can define one of
         # their interfaces with bInterfaceClass=7. This class checks for both.
         class FindUsbClass(object):
-            def __init__(self, usb_class=7):
+            def __init__(self, usb_class, idVendors):
                 self._class = usb_class
+                self.vendors = idVendors
 
             def __call__(self, device):
                 # first, let's check the device
                 if device.bDeviceClass == self._class:
                     return True
+
                 # transverse all devices and look through their interfaces to
                 # find a matching class
                 for cfg in device:
-                    intf = usb.util.find_descriptor(cfg, bInterfaceClass=self._class)
+                    for idVendor in self.vendors:
+                        if idVendor == device.idVendor:
+                            return True
 
-                    if intf is not None:
+                    if usb.util.find_descriptor(cfg, bInterfaceClass=self._class) is not None:
                         return True
 
                 return False
 
-        usb_devices = usb.core.find(find_all=True, custom_match=FindUsbClass())
-
-        # if no printers are found after this step we will take the
-        # first epson or star device we can find.
-        # epson
-        usb_devices += usb.core.find(find_all=True, idVendor=0x04b8)
-        # star
-        usb_devices += usb.core.find(find_all=True, idVendor=0x0519)
+        # find epson and start on the usb
+        # epson = 0x04b8
+        # star  = 0x0519
+        usb_devices = usb.core.find(find_all=True, custom_match=FindUsbClass(7, [0x04b8, 0x0519]))
 
         printers = []
         for device in usb_devices:
             try:
-                manufacture = usb.util.get_string(device, 256, device.iManufacturer)
-                product = usb.util.get_string(device, 256, device.iProduct)
+                manufacture = usb.util.get_string(device, device.iManufacturer)
+                product = usb.util.get_string(device, device.iProduct)
                 description = '%s %s' % (manufacture, product)
             except Exception as e:
                 _logger.error("Can not get printer description: %s" % (e.message or repr(e)))
@@ -119,7 +119,7 @@ class FindPrinters(object):
 class Usb(object):
     """ Define USB printer """
 
-    def __init__(self, idVendor, idProduct, interface=0, in_ep=None, out_ep=None):
+    def __init__(self, idVendor, idProduct, interface=0, timeout=0, in_ep=None, out_ep=None):
         """
         @param idVendor  : Vendor ID
         @param idProduct : Product ID
@@ -132,6 +132,7 @@ class Usb(object):
         self.idVendor = idVendor
         self.idProduct = idProduct
         self.interface = interface
+        self.timeout = timeout
         self.in_ep = in_ep
         self.out_ep = out_ep
         self.open()
@@ -205,9 +206,11 @@ class Usb(object):
             time.sleep(0.1)
 
     def _raw(self, msg):
-        """ Print any command sent in raw format """
-        if len(msg) != self.device.write(self.out_ep, msg, self.interface, timeout=5000):
-            raise TicketNotPrinted()
+        """ Print any command sent in raw format
+        :param msg: arbitrary code to be printed
+        :type msg: bytes
+        """
+        self.device.write(self.out_ep, msg, self.timeout)
 
     def __extract_status(self):
         maxiterate = 0
