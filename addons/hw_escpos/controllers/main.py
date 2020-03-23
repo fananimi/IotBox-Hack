@@ -108,7 +108,7 @@ class EscposDriver(Thread):
 
     def run(self):
         while True:
-            error = False
+            reprint = False
             printer = None
             timestamp, task, data = self.queue.get(True)
             try:
@@ -141,24 +141,23 @@ class EscposDriver(Thread):
                         # re-add job if exists
                         self.queue.put((timestamp, task, data))
             except NoDeviceError as e:
-                error = True
+                reprint = True
                 print("No device found %s" % str(e))
             except HandleDeviceError as e:
-                error = True
+                reprint = True
                 print("Impossible to handle the device due to previous error %s" % str(e))
             except TicketNotPrinted as e:
-                error = True
+                reprint = True
                 print("The ticket does not seems to have been fully printed %s" % str(e))
             except NoStatusError as e:
-                error = True
+                reprint = True
                 print("Impossible to get the status of the printer %s" % str(e))
             except Exception as e:
-                error = True
                 self.set_status('error', str(e))
                 errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
                 _logger.error(errmsg)
             finally:
-                if error:
+                if reprint:
                     self.queue.put((timestamp, task, data))
                 if printer:
                     printer.close()
