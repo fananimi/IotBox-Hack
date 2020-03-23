@@ -30,7 +30,7 @@ def utfstr(stuff):
     if isinstance(stuff, str):
         return stuff
     else:
-        return stuff.decode()
+        return str(stuff)
 
 
 class StyleStack:
@@ -148,8 +148,8 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
-                    style[attr]) + ' for style: ' + utfstr(attr))
+                print(
+                    'WARNING: ESC/POS PRINTING: ignoring invalid value: %s for style %s' % (style[attr], utfstr(attr)))
             else:
                 _style[attr] = self.enforce_type(attr, style[attr])
         self.stack.append(_style)
@@ -159,8 +159,7 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
-                    style[attr]) + ' for style: ' + utfstr(attr))
+                print('WARNING: ESC/POS PRINTING: ignoring invalid value: %s for style %s' % (style[attr], attr))
             else:
                 self.stack[-1][attr] = self.enforce_type(attr, style[attr])
 
