@@ -130,7 +130,7 @@ class JSONRPCPlugin(object):
 
             try:
                 json_request = request.json
-                if isinstance(json_request, dict) and json_request.has_key('params'):
+                if isinstance(json_request, dict) and 'params' in json_request:
                     kwargs.update(json_request['params'])
                 rv = callback(*args, **kwargs)
             except HTTPError:
@@ -147,7 +147,7 @@ class JSONRPCPlugin(object):
                     if not isinstance(json_request, dict):
                         raise ValueError(
                             "Function declared as capable of handling request of type 'json' but called with a request of type 'http'")
-                    elif json_request.has_key('id'):
+                    elif 'id' in json_request:
                         json_response['id'] = json_request['id']
                 except ValueError as message:
                     return self.make_error(400, message)

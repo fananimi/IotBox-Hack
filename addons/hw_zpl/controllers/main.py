@@ -106,8 +106,8 @@ class ZPLDriver(Thread):
         while True:
             printer = None
             error = False
+            timestamp, task, data = self.queue.get(True)
             try:
-                timestamp, task, data = self.queue.get(True)
 
                 try:
                     printer = self.get_zpl_printer()
@@ -148,7 +148,7 @@ class ZPLDriver(Thread):
                 error = True
                 self.set_status('error', str(e))
                 errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
-                _logger.error(errmsg);
+                _logger.error(errmsg)
             finally:
                 if error:
                     self.queue.put((timestamp, task, data))

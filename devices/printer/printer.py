@@ -3,8 +3,7 @@ import logging
 import usb.core
 import usb.util
 
-from devices.printer.exceptions import (NoDeviceError, NoStatusError,
-                                        TicketNotPrinted, HandleDeviceError)
+from devices.printer.exceptions import (NoDeviceError, NoStatusError, HandleDeviceError)
 
 _logger = logging.getLogger(__name__)
 
@@ -86,7 +85,7 @@ class FindPrinters(object):
                 product = usb.util.get_string(device, device.iProduct)
                 description = '%s %s' % (manufacture, product)
             except Exception as e:
-                _logger.error("Can not get printer description: %s" % (e.message or repr(e)))
+                _logger.error("Can not get printer description: %s" % (str(e)))
                 description = 'Unknown printer'
 
             # create printer instance

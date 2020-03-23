@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-import time
 import copy
 import io
 import base64
@@ -9,7 +7,6 @@ import hashlib
 import re
 import traceback
 import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
 
 from PIL import Image
 
@@ -29,10 +26,10 @@ from .exceptions import *
 
 def utfstr(stuff):
     """ converts stuff to string and does without failing if stuff is a utf8 string """
-    if isinstance(stuff, basestring):
+    if isinstance(stuff, str):
         return stuff
     else:
-        return str(stuff)
+        return stuff.decode()
 
 
 class StyleStack:
