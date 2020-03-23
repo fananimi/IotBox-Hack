@@ -5,6 +5,7 @@ import math
 import hashlib
 import re
 import traceback
+import codecs
 import xml.etree.ElementTree as ET
 
 from PIL import Image
@@ -338,8 +339,8 @@ class Escpos(EscposCore):
         buffer = ""
 
         self._raw(S_RASTER_N)
-        buffer = "%02X%02X%02X%02X" % (((size[0] / size[1]) / 8), 0, size[1], 0)
-        self._raw(buffer.decode('hex'))
+        buffer = b"%02X%02X%02X%02X" % (int((size[0] / size[1]) / 8), 0, size[1], 0)
+        self._raw(codecs.decode(buffer, 'hex'))
         buffer = ""
 
         while i < len(line):
@@ -348,7 +349,7 @@ class Escpos(EscposCore):
             i += 8
             cont += 1
             if cont % 4 == 0:
-                self._raw(buffer.decode("hex"))
+                self._raw(codecs.decode(buffer, "hex"))
                 buffer = ""
                 cont = 0
 
@@ -356,6 +357,7 @@ class Escpos(EscposCore):
         """ Print formatted image """
         i = 0
         cont = 0
+        buffer = ""
         raw = b""
 
         def __raw(string):
@@ -366,7 +368,7 @@ class Escpos(EscposCore):
 
         raw += S_RASTER_N
         buffer = "%02X%02X%02X%02X" % (int((size[0] / size[1]) / 8), 0, size[1], 0)
-        raw += buffer.encode()
+        raw += codecs.decode(buffer, 'hex')
         buffer = ""
 
         while i < len(line):
@@ -375,7 +377,7 @@ class Escpos(EscposCore):
             i += 8
             cont += 1
             if cont % 4 == 0:
-                raw += buffer.encode()
+                raw += codecs.decode(buffer, 'hex')
                 buffer = ""
                 cont = 0
 
@@ -429,9 +431,12 @@ class Escpos(EscposCore):
 
     def print_base64_image(self, img):
 
+        print('print_b64_img')
+
         id = hashlib.md5(img.encode()).digest()
 
         if id not in self.img_cache:
+            print('not in cache')
 
             img = img[img.find(',') + 1:]
             f = io.BytesIO(b'img')
@@ -446,10 +451,16 @@ class Escpos(EscposCore):
             else:
                 img.paste(img_rgba)
 
+            print('convert image')
+
             pix_line, img_size = self._convert_image(img)
+
+            print('print image')
 
             buffer = self._raw_print_image(pix_line, img_size)
             self.img_cache[id] = buffer
+
+        print('raw image')
 
         self._raw(self.img_cache[id])
 
@@ -602,9 +613,9 @@ class Escpos(EscposCore):
             elif elem.tag == 'br':
                 serializer.linebreak()
 
-            # elif elem.tag == 'img':
-            #     if 'src' in elem.attrib and 'data:' in elem.attrib['src']:
-            #         self.print_base64_image(elem.attrib['src'])
+            elif elem.tag == 'img':
+                if 'src' in elem.attrib and 'data:' in elem.attrib['src']:
+                    self.print_base64_image(elem.attrib['src'])
 
             elif elem.tag == 'barcode' and 'encoding' in elem.attrib:
                 serializer.start_block(stylestack)
