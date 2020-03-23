@@ -35,4 +35,4 @@ class WebThread(Thread):
         app.install(EnableCorsPlugin())
         app.install(JSONRPCPlugin())
         port = StateManager.getInstance().web_service.port
-        app.run(host='localhost', port=port, debug=False)
+        app.run(host='0.0.0.0', port=port, debug=False)
