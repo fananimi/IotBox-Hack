@@ -112,6 +112,7 @@ class StateManager(configparser.RawConfigParser):
         '''
         :return: Log object
         '''
+
         class Log:
             def __init__(self, base_path):
                 self.base_path = base_path
@@ -127,17 +128,9 @@ class StateManager(configparser.RawConfigParser):
                 return logfile
 
             def validate_level(self, value):
-                allowed_values = []
-                try:
-                    levelnames = [name[1] for name in logging._levelToName.items()]
-                except AttributeError:
-                    levelnames = logging._levelNames.keys()
-
-                for level in levelnames:
-                    if isinstance(level, str):
-                        allowed_values.append(level)
-                if value not in allowed_values:
-                    raise ValueError('level must be %s' % str(allowed_values))
+                levelnames = [name[1] for name in logging._levelToName.items()]
+                if value not in levelnames:
+                    raise ValueError('level must be %s' % str(levelnames))
 
                 return value
 
@@ -159,6 +152,7 @@ class StateManager(configparser.RawConfigParser):
         '''
         :return: WebService object
         '''
+
         class WebService:
             def __init__(self):
                 self.port = None
