@@ -114,51 +114,52 @@ class FindPrinters(object):
 
 
 class Usb(object):
-    """ Define USB printer """
+    """ USB printer
+    This class describes a printer that natively speaks USB.
+    """
 
-    def __init__(self, idVendor, idProduct, interface=0, timeout=0, in_ep=None, out_ep=None):
+    def __init__(self, idVendor, idProduct, timeout=0, in_ep=None, out_ep=None):
         """
-        @param idVendor  : Vendor ID
-        @param idProduct : Product ID
-        @param interface : USB device interface
-        @param in_ep     : Input end point
-        @param out_ep    : Output end point
+        :param idVendor: Vendor ID
+        :param idProduct: Product ID
+        :param timeout: Is the time limit of the USB operation. Default without timeout.
+        :param in_ep: Input end point
+        :param out_ep: Output end point
         """
-        self.device = None
-        self.check_driver = False
         self.idVendor = idVendor
         self.idProduct = idProduct
-        self.interface = interface
         self.timeout = timeout
         self.in_ep = in_ep
         self.out_ep = out_ep
+
+        self.interface = 0
+        self.device = None
+        self.check_driver = False
         self.open()
 
     def open(self):
-        """ Search device on USB tree and set is as escpos device """
-
+        """ Search device on USB tree and set it as printer device """
         self.device = usb.core.find(idVendor=self.idVendor, idProduct=self.idProduct)
         if self.device is None:
-            raise NoDeviceError()
+            raise usb.core.USBError("Device not found or cable not plugged in.")
 
         # pyusb has three backends: libusb0, libusb1 and openusb but
         # only libusb1 backend implements the methods is_kernel_driver_active()
         # and detach_kernel_driver().
         # This helps enable this library to work on Windows.
-        if self.device.backend.__module__.endswith("libusb1"):
-            self.check_driver = True
-
+        self.check_driver = self.device.backend.__module__.endswith("libusb1")
+        if self.check_driver:
             try:
                 self.check_driver = self.device.is_kernel_driver_active(self.interface)
             except NotImplementedError:
                 pass
 
-            if self.check_driver:
-                try:
-                    self.device.detach_kernel_driver(self.interface)
-                except usb.core.USBError as e:
-                    if self.check_driver:
-                        _logger.error("Could not detatch kernel driver: {0}".format(str(e)))
+        if self.check_driver:
+            try:
+                self.device.detach_kernel_driver(self.interface)
+            except usb.core.USBError as e:
+                if self.check_driver:
+                    raise usb.core.USBError("Could not detach kernel driver: %s" % str(e))
 
         try:
             self.device.set_configuration()
@@ -179,9 +180,8 @@ class Usb(object):
                     # default values for officially supported printers
                     self.in_ep = 0x82
                     self.out_ep = 0x01
-
         except usb.core.USBError as e:
-            raise HandleDeviceError(e)
+            raise usb.core.USBError("Could not set configuration: {0}".format(str(e)))
 
     def close(self):
         i = 0
@@ -215,7 +215,7 @@ class Usb(object):
         while rep == None:
             maxiterate += 1
             if maxiterate > 10000:
-                raise NoStatusError()
+                raise StopIteration()
             r = self.device.read(self.in_ep, 20, self.interface).tolist()
             while len(r):
                 rep = r.pop()

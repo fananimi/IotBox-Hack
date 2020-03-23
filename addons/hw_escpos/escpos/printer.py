@@ -1,17 +1,18 @@
 #!/usr/bin/python
+from escpos.constants import PAPER_FULL_CUT
 
 from .escpos import Escpos
-from .constants import (PAPER_FULL_CUT, DLE_EOT_PRINTER,
-                        DLE_EOT_OFFLINE, DLE_EOT_ERROR, DLE_EOT_PAPER)
+from .constants import DLE_EOT_PRINTER, DLE_EOT_OFFLINE, DLE_EOT_ERROR, DLE_EOT_PAPER
 from devices.printer import Usb as UsbPrinter
 
 
 class Usb(UsbPrinter, Escpos):
     """ Define USB printer """
 
-    def __init__(self, idVendor, idProduct, interface=0, timeout=5000, in_ep=None, out_ep=None):
-        UsbPrinter.__init__(self, idVendor, idProduct, interface, timeout, in_ep, out_ep)
-        self.errorText = "ERROR PRINTER\n\n\n\n\n\n" + PAPER_FULL_CUT
+    def __init__(self, idVendor, idProduct, timeout=0, in_ep=None, out_ep=None, *args, **kwargs):
+        Escpos.__init__(self, *args, **kwargs)
+        UsbPrinter.__init__(self, idVendor, idProduct, timeout, in_ep, out_ep)
+        self.errorText = b"ERROR PRINTER\n\n\n\n\n\n" + PAPER_FULL_CUT
 
     def get_printer_status(self):
         status = {
@@ -54,9 +55,3 @@ class Usb(UsbPrinter, Escpos):
         status['paper']['present'] = not bool(paper & 96)
 
         return status
-
-    def __del__(self):
-        """ Release USB interface """
-        if self.device:
-            self.close()
-        self.device = None

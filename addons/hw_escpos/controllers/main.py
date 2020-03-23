@@ -16,8 +16,7 @@ except ImportError:
     usb = None
 
 from devices import Printer
-from devices.printer.exceptions import (NoDeviceError, NoStatusError,
-                                        TicketNotPrinted, HandleDeviceError)
+
 from odoo import http
 from odoo.thread import Thread
 from odoo.tools.translate import _
@@ -62,7 +61,7 @@ class EscposDriver(Thread):
             printer_device = Usb(printer.vendor_id, printer.product_id)
             printer.status = Printer.STATUS_CONNECTED
             return printer_device
-        except NoDeviceError:
+        except usb.core.USBError:
             printer.status = Printer.STATUS_DISCONNECTED
         finally:
             if printer.status != self.current_printer_status:
@@ -112,11 +111,7 @@ class EscposDriver(Thread):
             printer = None
             timestamp, task, data = self.queue.get(True)
             try:
-
-                try:
-                    printer = self.get_escpos_printer()
-                except Exception as e:
-                    _logger.error(e)
+                printer = self.get_escpos_printer()
 
                 if printer:
                     if task == 'status':
@@ -140,18 +135,8 @@ class EscposDriver(Thread):
                     if task != 'status':
                         # re-add job if exists
                         self.queue.put((timestamp, task, data))
-            except NoDeviceError as e:
+            except usb.core.USBError:
                 reprint = True
-                print("No device found %s" % str(e))
-            except HandleDeviceError as e:
-                reprint = True
-                print("Impossible to handle the device due to previous error %s" % str(e))
-            except TicketNotPrinted as e:
-                reprint = True
-                print("The ticket does not seems to have been fully printed %s" % str(e))
-            except NoStatusError as e:
-                reprint = True
-                print("Impossible to get the status of the printer %s" % str(e))
             except Exception as e:
                 self.set_status('error', str(e))
                 errmsg = str(e) + '\n' + '-' * 60 + '\n' + traceback.format_exc() + '-' * 60 + '\n'
@@ -171,7 +156,7 @@ class EscposDriver(Thread):
 
     def print_status(self, eprint):
         eprint.text('\n')
-        eprint.set(align='center', type='b', height=2, width=2)
+        eprint.set(align='center', text_type='b', height=2, width=2)
         eprint.text('LinkBox Status\n')
         eprint.set(align='center')
         eprint.text("VERSION: %s\n" % release.version)
@@ -198,7 +183,7 @@ class EscposDriver(Thread):
             eprint.text('up  with  DHCP,  and  that  net-\n')
             eprint.text('work addresses are available.\n')
         else:
-            eprint.set(align='center', font='b', type='u')
+            eprint.set(align='center', font='b', text_type='normal')
             eprint.text('Homepage Addresses:\n\n')
             eprint.set(align='center')
             for ip in ips:
@@ -251,10 +236,10 @@ class EscposDriver(Thread):
             eprint.print_base64_image(receipt['company']['logo'])
             eprint.text('\n')
         else:
-            eprint.set(align='center', type='b', height=2, width=2)
+            eprint.set(align='center', text_type='b', height=2, width=2)
             eprint.text(receipt['company']['name'] + '\n')
 
-        eprint.set(align='center', type='b')
+        eprint.set(align='center', text_type='b')
         if check(receipt['company']['contact_address']):
             eprint.text(receipt['company']['contact_address'] + '\n')
         if check(receipt['company']['phone']):
