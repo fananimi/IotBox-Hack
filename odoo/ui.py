@@ -1,30 +1,25 @@
 import release
-try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
-    QMenu = QtWidgets.QMenu
-    QSystemTrayIcon = QtWidgets.QSystemTrayIcon
-except ImportError:
-    from PyQt4 import QtCore, QtGui
-    QMenu = QtGui.QMenu
-    QSystemTrayIcon = QtGui.QSystemTrayIcon
+
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from state import StateManager
 
 
-class SystemTrayIcon(QSystemTrayIcon):
+class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     def __init__(self, icon, parent=None):
         super(SystemTrayIcon, self).__init__(icon, parent)
-
-        menu = QMenu(parent)
+        menu = QtWidgets.QMenu(parent)
         # add menu
-        versionAction = menu.addAction("LinkBox %s" % release.version)
-        QtCore.QObject.connect(versionAction, QtCore.SIGNAL('triggered()'), self.show_dialog)
+        self.menu_vesion = QtWidgets.QAction("LinkBox %s" % release.version)
+        self.menu_quit = QtWidgets.QAction("Quit")
+        menu.addAction(self.menu_vesion)
         menu.addSeparator()
-        quitAction = menu.addAction("Quit")
-        self.setContextMenu(menu)
+        menu.addAction(self.menu_quit)
         # register signal
-        QtCore.QObject.connect(quitAction,QtCore.SIGNAL('triggered()'), self.quit)
+        self.menu_vesion.triggered.connect(self.show_dialog)
+        self.menu_quit.triggered.connect(self.quit)
+        self.setContextMenu(menu)
 
     def quit(self):
         QtCore.QCoreApplication.exit()

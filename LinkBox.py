@@ -2,9 +2,10 @@ from __future__ import print_function
 import sys
 import signal
 import logging
-from PyQt5 import uic, QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from addons.hw_proxy.controllers.main import drivers
+from ui.main import Ui_Dialog
 from odoo.thread import WebThread
 from odoo.ui import SystemTrayIcon
 from static.images import xpm
@@ -32,13 +33,13 @@ def setup_log():
         )
 
 
-class LinkBox(QtWidgets.QDialog):
+class LinkBox(QtWidgets.QDialog, Ui_Dialog):
 
     def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
-        uic.loadUi('ui/main.ui', self)
         self.state = StateManager.getInstance()
         self.state.set_dialog(self)
+        self.setupUi(self)
         self._register_thread()
         self._register_signal()
 
