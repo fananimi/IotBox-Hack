@@ -1,15 +1,8 @@
+from __future__ import print_function
 import sys
 import signal
 import logging
-
-try:
-    from PyQt5 import QtCore, QtGui, QtWidgets
-    QDialog = QtWidgets.QDialog
-    QApplication = QtWidgets.QApplication
-except ImportError:
-    from PyQt4 import QtCore, QtGui
-    QDialog = QtGui.QDialog
-    QApplication = QtGui.QApplication
+from PyQt5 import uic, QtCore, QtGui, QtWidgets
 
 from addons.hw_proxy.controllers.main import drivers
 from odoo.thread import WebThread
@@ -39,14 +32,13 @@ def setup_log():
         )
 
 
-class LinkBox(QDialog):
+class LinkBox(QtWidgets.QDialog):
 
     def __init__(self, parent=None):
         super(LinkBox, self).__init__(parent)
         uic.loadUi('ui/main.ui', self)
         self.state = StateManager.getInstance()
         self.state.set_dialog(self)
-        self.setupUi(self)
         self._register_thread()
         self._register_signal()
 
@@ -98,9 +90,7 @@ class LinkBox(QDialog):
         # the following section required for update printer connected status
         for key in drivers.keys():
             attr_name = 'driver_%s_thread' % key
-            self.connect(getattr(self, attr_name),
-                         QtCore.SIGNAL("update_printer_status(QString, QString)"),
-                         self.update_printer_status)
+            getattr(getattr(self, attr_name), 'printer_status_signal').connect(self.update_printer_status)
 
     # --------------------------------------------------------------------------------
     # ******************** Callback function for signals is here ********************|
@@ -194,7 +184,7 @@ class LinkBox(QDialog):
     def get_combobox_object(self, combobox, model):
         index = combobox.currentIndex()
         if index >= 0:
-            return model.item(index).data().toPyObject()
+            return model.item(index).data()
 
     def changed(self):
         change_statuses = []
@@ -217,7 +207,7 @@ class LinkBox(QDialog):
 
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     # show system try icon
     systemTryIcon = SystemTrayIcon(QtGui.QIcon(QtGui.QPixmap(xpm.icon_64)))

@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-import sys
 import time
 import logging
 import traceback
 from threading import Lock
-if sys.version_info.major == 3:
-    from queue import Queue
-else:
-    from Queue import Queue
-try:
-    from PyQt5 import QtCore
-except ImportError:
-    from PyQt4 import QtCore
+from queue import Queue
+from PyQt5 import QtCore
 import addons.hw_proxy.controllers.main as hw_proxy
 
 try:
@@ -38,6 +31,8 @@ datetime.strptime('2012-01-01', '%Y-%m-%d')
 
 
 class ZPLDriver(Thread):
+    printer_status_signal = QtCore.pyqtSignal(str, str)
+
     def __init__(self):
         Thread.__init__(self)
         self.queue = Queue()
@@ -79,9 +74,7 @@ class ZPLDriver(Thread):
                     self.set_status('disconnected', 'Printer Not Found')
 
             # update status in GUI
-            self.emit(QtCore.SIGNAL("update_printer_status(QString, QString)"),
-                      str(StateManager.ZPL_PRINTER),
-                      str(printer.status))
+            self.printer_status_signal.emit(str(StateManager.ZPL_PRINTER), str(printer.status))
 
         return printer_device
 
@@ -141,16 +134,16 @@ class ZPLDriver(Thread):
                         self.queue.put((timestamp, task, data))
             except NoDeviceError as e:
                 error = True
-                print ("No device found %s" % str(e))
+                print("No device found %s" % str(e))
             except HandleDeviceError as e:
                 error = True
-                print ("Impossible to handle the device due to previous error %s" % str(e))
+                print("Impossible to handle the device due to previous error %s" % str(e))
             except TicketNotPrinted as e:
                 error = True
-                print ("The ticket does not seems to have been fully printed %s" % str(e))
+                print("The ticket does not seems to have been fully printed %s" % str(e))
             except NoStatusError as e:
                 error = True
-                print ("Impossible to get the status of the printer %s" % str(e))
+                print("Impossible to get the status of the printer %s" % str(e))
             except Exception as e:
                 error = True
                 self.set_status('error', str(e))

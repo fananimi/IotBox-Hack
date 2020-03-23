@@ -106,9 +106,7 @@ class FindPrinters(object):
     def __iter__(self):
         return self
 
-    # To move to next element. In Python 3,
-    # we should replace next with __next__
-    def next(self):
+    def __next__(self):
         if self._current < self._length:
             printer = self._printers[self._current]
             self._current += 1

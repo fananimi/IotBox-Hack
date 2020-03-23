@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 import sys
 import inspect
@@ -5,16 +6,17 @@ import logging
 
 from .core import request, response, HTTPResponse, HTTPError
 
-
-try: from simplejson import dumps as json_dumps
-except ImportError: # pragma: no cover
-    try: from json import dumps as json_dumps
+try:
+    from simplejson import dumps as json_dumps
+except ImportError:  # pragma: no cover
+    try:
+        from json import dumps as json_dumps
     except ImportError:
-        try: from django.utils.simplejson import dumps as json_dumps
+        try:
+            from django.utils.simplejson import dumps as json_dumps
         except ImportError:
             def json_dumps(data):
                 raise ImportError("JSON support requires Python 2.6 or simplejson.")
-
 
 _py2 = sys.version_info[0] == 2
 _logger = logging.getLogger(__name__)
@@ -85,7 +87,7 @@ class EnableCorsPlugin(object):
 
 class JSONRPCPlugin(object):
     name = 'json_rpc'
-    api  = 2
+    api = 2
 
     def __init__(self, json_dumps=json_dumps):
         self.json_dumps = json_dumps
@@ -143,7 +145,8 @@ class JSONRPCPlugin(object):
                 # build json
                 try:
                     if not isinstance(json_request, dict):
-                        raise ValueError("Function declared as capable of handling request of type 'json' but called with a request of type 'http'")
+                        raise ValueError(
+                            "Function declared as capable of handling request of type 'json' but called with a request of type 'http'")
                     elif json_request.has_key('id'):
                         json_response['id'] = json_request['id']
                 except ValueError as message:
@@ -156,9 +159,9 @@ class JSONRPCPlugin(object):
                 rv = str(rv)
 
             if isinstance(rv, dict):
-                #Attempt to serialize, raises exception on failure
+                # Attempt to serialize, raises exception on failure
                 rv = dumps(rv)
-                #Set content type only if serialization succesful
+                # Set content type only if serialization succesful
                 response.content_type = 'application/json'
             elif isinstance(rv, HTTPResponse) and isinstance(rv.body, dict):
                 rv.body = dumps(rv.body)
@@ -234,8 +237,8 @@ class Controller(object):
                 cls._app.route(callback=callable_method, method=method,
                                path=rule, name=endpoint)
             else:
-                for cached_rule in custom_rule.values()[0]:
-                    rule, options = cached_rule
+                for key in custom_rule:
+                    rule, options = custom_rule[key][0]
                     try:
                         method = options.pop("method")
                     except KeyError:
@@ -248,7 +251,6 @@ class Controller(object):
 
                     cls._app.route(callback=callable_method, path=rule,
                                    method=method, name=endpoint, **options)
-
 
     @classmethod
     def _build_route_rule(cls, func_name, *method_args):
@@ -305,4 +307,4 @@ def join_paths(*path_pieces):
     # Remove blank strings, and make sure everything is a string
     cleaned_parts = map(str, filter(None, path_pieces))
 
-    return "/".join(cleaned_parts + [""])
+    return "/".join([val for val in cleaned_parts] + [""])

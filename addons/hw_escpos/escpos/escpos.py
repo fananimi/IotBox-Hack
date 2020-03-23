@@ -150,7 +150,7 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print ('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
+                print('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
                     style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 _style[attr] = self.enforce_type(attr, style[attr])
@@ -161,7 +161,7 @@ class StyleStack:
         _style = {}
         for attr in style:
             if attr in self.cmds and not style[attr] in self.cmds[attr]:
-                print ('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
+                print('WARNING: ESC/POS PRINTING: ignoring invalid value: ' + utfstr(
                     style[attr]) + ' for style: ' + utfstr(attr))
             else:
                 self.stack[-1][attr] = self.enforce_type(attr, style[attr])
@@ -396,7 +396,7 @@ class Escpos:
         img_size = [0, 0]
 
         if im.size[0] > 512:
-            print  ("WARNING: Image is wider than 512 and could be truncated at print time ")
+            print("WARNING: Image is wider than 512 and could be truncated at print time ")
         if im.size[1] > 255:
             raise ImageSizeError()
 
@@ -809,12 +809,12 @@ class Escpos:
                 # if the encoding changed, remember it and prefix the character with
                 # the esc-pos encoding change sequence
                 self.encoding = encoding
-                encoded = encodings[encoding] + encoded
+                encoded = encodings[encoding].encode() + encoded
 
             return encoded
 
         def encode_str(txt):
-            buffer = ''
+            buffer = b''
             for c in txt:
                 buffer += encode_char(c)
             return buffer
