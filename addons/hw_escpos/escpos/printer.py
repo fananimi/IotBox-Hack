@@ -7,11 +7,10 @@ from .constants import DLE_EOT_PRINTER, DLE_EOT_OFFLINE, DLE_EOT_ERROR, DLE_EOT_
 from devices.printer import Usb as UsbPrinter
 
 
-class Usb(Escpos, UsbPrinter, EscposUSB):
+class Usb(UsbPrinter, Escpos, EscposUSB):
     """ Define USB printer """
 
     def __init__(self, idVendor, idProduct, timeout=0, in_ep=None, out_ep=None, *args, **kwargs):
-        Escpos.__init__(self, *args, **kwargs)
         UsbPrinter.__init__(self, idVendor, idProduct, timeout, in_ep, out_ep)
         self.errorText = b"ERROR PRINTER\n\n\n\n\n\n" + PAPER_FULL_CUT
 
