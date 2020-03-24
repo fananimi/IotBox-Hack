@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from escpos.printer import Usb as EscposUSB
 from escpos.constants import PAPER_FULL_CUT
 
 from .escpos import Escpos
@@ -6,7 +7,7 @@ from .constants import DLE_EOT_PRINTER, DLE_EOT_OFFLINE, DLE_EOT_ERROR, DLE_EOT_
 from devices.printer import Usb as UsbPrinter
 
 
-class Usb(UsbPrinter, Escpos):
+class Usb(Escpos, UsbPrinter, EscposUSB):
     """ Define USB printer """
 
     def __init__(self, idVendor, idProduct, timeout=0, in_ep=None, out_ep=None, *args, **kwargs):
