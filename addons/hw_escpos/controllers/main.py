@@ -134,7 +134,7 @@ class EscposDriver(Thread):
                 else:
                     if task != 'status':
                         # re-add job if exists
-                        self.queue.put((timestamp, task, data))
+                        reprint = True
             except usb.core.USBError:
                 reprint = True
             except Exception as e:
