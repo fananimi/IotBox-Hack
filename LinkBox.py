@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 import signal
 import logging
+import usb
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from addons.hw_proxy.controllers.main import drivers
@@ -40,6 +41,7 @@ class LinkBox(QtWidgets.QDialog, Ui_Dialog):
         self.state = StateManager.getInstance()
         self.state.set_dialog(self)
         self.setupUi(self)
+        self.setWindowTitle('LinkBox')
         self._register_thread()
         self._register_signal()
 
@@ -48,7 +50,12 @@ class LinkBox(QtWidgets.QDialog, Ui_Dialog):
         self.printer_escpos_model = QtGui.QStandardItemModel()
 
         # update status
-        self._init_ui()
+        try:
+            self._init_ui()
+        except usb.core.NoBackendError as e:
+            QtWidgets.QMessageBox.question(self, 'System Error', str(e), QtWidgets.QMessageBox.Close)
+
+            sys.exit()
 
     # --------------------------------------------------------------------------------
     # ********************* All functions shown to user is here *********************|
