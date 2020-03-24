@@ -648,6 +648,7 @@ class Escpos(EscposCore):
 
         except Exception as e:
             errmsg = str(e) + '\n' + '-' * 48 + '\n' + traceback.format_exc() + '-' * 48 + '\n'
+            self.set(font='b')
             self.text(errmsg)
             self.cut()
 
