@@ -32,7 +32,9 @@ There are two way to execute this application:
 1. Run from source code 
 
 ```bash
+$ virtualenv -p python3 env
 (env) $ pip install -r requirements.txt
+(env) $ python LinkBox.py
 ```
 
 2. Run form binary version
