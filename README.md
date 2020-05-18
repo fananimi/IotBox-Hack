@@ -39,7 +39,7 @@ $ virtualenv -p python3 env
 
 2. Run form binary version
 
-You can find the binay version in [release](https://github.com/fananimi/IotBox-Hack/tree/master/release) directory.
+You can find the binary version in [release](https://github.com/fananimi/IotBox-Hack/tree/master/release) directory.
 
 
 
