@@ -46,7 +46,7 @@ You can find the binay version in [release](https://github.com/fananimi/IotBox-H
 ![Screenshot](https://github.com/fananimi/IotBox-Hack/blob/master/images/Screenshot.png)
 
 
-#  How to support this project
+##  How to support this project
 
 If you love and care for this project, please [buying me a coffee ](https://www.buymeacoffee.com/fananimi).
 
