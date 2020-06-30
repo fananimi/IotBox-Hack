@@ -166,7 +166,7 @@ hw_proxy.drivers['zpl'] = driver
 
 class ZPLProxy(hw_proxy.Proxy):
 
-    def get_zpl(self, code):
+    def get_zpl(self, data):
         import qrcode
         import zpl
 
@@ -182,7 +182,7 @@ class ZPLProxy(hw_proxy.Proxy):
         # PRODUCT DESCRIPTION
         y += 1
         l.origin(margin, y)
-        l.write_text("Product Description", char_height=2, char_width=2, justification='C', line_width=42)
+        l.write_text(data['name'], char_height=2, char_width=2, justification='C', line_width=42)
         l.endorigin()
 
         # LINE OF PRODUCT DESCRIPTION
@@ -198,7 +198,7 @@ class ZPLProxy(hw_proxy.Proxy):
             box_size=1,
             border=4,
         )
-        qr.add_data('150021-40945')
+        qr.add_data(data['code'])
         qr.make(fit=True)
 
         img = qr.make_image(fill_color="black", back_color="white")
@@ -213,7 +213,7 @@ class ZPLProxy(hw_proxy.Proxy):
         # QR CODE TEXT
         y += image_width - margin
         l.origin(margin, y)
-        l.write_text("150021-40945", char_height=2, char_width=2, justification='C', line_width=22)
+        l.write_text(data['code'], char_height=2, char_width=2, justification='C', line_width=22)
         l.endorigin()
 
         # RIGHT LINE
@@ -231,7 +231,7 @@ class ZPLProxy(hw_proxy.Proxy):
         x += 5
         y -= 2
         l.origin(x, y)
-        l.write_text("PCS", char_height=5, char_width=5, justification='L', line_width=20)
+        l.write_text(data['uom'], char_height=5, char_width=5, justification='L', line_width=20)
         l.endorigin()
 
         x = image_width
@@ -247,7 +247,7 @@ class ZPLProxy(hw_proxy.Proxy):
         l.write_text("Locations:", char_height=2, char_width=2, justification='L', line_width=20)
         l.endorigin()
 
-        locations = ['SBY/STOCK', 'KSY/STOCK']
+        locations = data['locations']
         for location in locations:
             y += 4
             x = image_width + 2
@@ -258,9 +258,9 @@ class ZPLProxy(hw_proxy.Proxy):
         return l.dumpZPL()
 
     @http.route('/hw_proxy/print_label', type='json', auth='none', cors='*')
-    def print_label(self, label):
-        _logger.info('ZPL: PRINT LABEL : ' + label)
-        driver.push_task('label', self.get_zpl(label))
+    def print_label(self, data):
+        _logger.info('ZPL: PRINT LABEL : ' + str(data))
+        driver.push_task('label', self.get_zpl(data))
 
     @http.route('/hw_proxy/print_xml_label', type='json', auth='none', cors='*')
     def print_xml_receipt(self, label):
