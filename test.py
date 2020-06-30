@@ -1,6 +1,14 @@
-import os
+data = {
+    'name': 'Test Name',
+    'code': '0123456789',
+    'uom': 'Unit(S)',
+    'locations': [
+        'SBY/Stock',
+        'KSY/Stock'
+    ]
+}
+
 import qrcode
-from PIL import Image
 import zpl
 
 l = zpl.Label(72, 50)
@@ -15,7 +23,7 @@ l.endorigin()
 # PRODUCT DESCRIPTION
 y += 1
 l.origin(margin, y)
-l.write_text("Product Description", char_height=2, char_width=2, justification='C', line_width=42)
+l.write_text(data['name'], char_height=2, char_width=2, justification='C', line_width=42)
 l.endorigin()
 
 # LINE OF PRODUCT DESCRIPTION
@@ -31,7 +39,7 @@ qr = qrcode.QRCode(
     box_size=1,
     border=4,
 )
-qr.add_data('150021-40945')
+qr.add_data(data['code'])
 qr.make(fit=True)
 
 img = qr.make_image(fill_color="black", back_color="white")
@@ -46,7 +54,7 @@ l.endorigin()
 # QR CODE TEXT
 y += image_width - margin
 l.origin(margin, y)
-l.write_text("150021-40945", char_height=2, char_width=2, justification='C', line_width=22)
+l.write_text(data['code'], char_height=2, char_width=2, justification='C', line_width=22)
 l.endorigin()
 
 # RIGHT LINE
@@ -64,7 +72,7 @@ l.endorigin()
 x += 5
 y -= 2
 l.origin(x, y)
-l.write_text("PCS", char_height=5, char_width=5, justification='L', line_width=20)
+l.write_text(data['uom'], char_height=5, char_width=5, justification='L', line_width=20)
 l.endorigin()
 
 x = image_width
@@ -80,7 +88,7 @@ l.origin(x, y)
 l.write_text("Locations:", char_height=2, char_width=2, justification='L', line_width=20)
 l.endorigin()
 
-locations = ['SBY/STOCK', 'KSY/STOCK']
+locations = data['locations']
 for location in locations:
     y += 4
     x = image_width + 2
