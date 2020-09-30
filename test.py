@@ -81,6 +81,19 @@ l.origin(x, y)
 l.draw_box(260, 1, thickness=3)
 l.endorigin()
 
+# Qty
+y += 2
+x = image_width + 2
+l.origin(x, y)
+l.write_text("Qty:", char_height=2, char_width=2, justification='L', line_width=20)
+l.endorigin()
+
+x = image_width
+y += 3
+l.origin(x, y)
+l.draw_box(260, 1, thickness=3)
+l.endorigin()
+
 # LOCATIONS
 y += 2
 x = image_width + 2
