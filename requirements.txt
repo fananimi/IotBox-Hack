@@ -4,4 +4,4 @@ zpl>=0.1.1,<1.0
 netifaces>=0.10.9,<1.0
 Pillow>=5.3.0,<6.0
 PyInstaller>=3.6,<4.0
-PyQt5==5.9
+PyQt5==5.15.1; sys_platform == 'linux'
