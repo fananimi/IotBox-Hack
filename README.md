@@ -1,7 +1,7 @@
 # IOTBox-Hack
-Alternative solution Cross-platform IOT Box by Odoo.
+Alternative solution Cross-platform IOT Box for Odoo.
 
-This application is ports of IoT Box by Odoo. You can run this application in any major operating system such as Linux, Windows, and OSX. You don't need to install Odoo and PostgreSQL while using this application.
+This application is clone of IoT Box by Odoo. You can run this application in any major operating system such as Linux, Windows, and OSX. You don't need to install Odoo and PostgreSQL while using this application.
 
 ## What is IoT Box ?
 
